@@ -1,4 +1,9 @@
 
+# Commands
+npm install -g @mermaid-js/mermaid-cli
+npm install puppeteer
+
+
 <!-- Edit README.md, not index.md -->
 
 # Aider is AI pair programming in your terminal

@@ -251,3 +251,5 @@ yarl==1.18.3
     # via aiohttp
 zipp==3.21.0
     # via importlib-metadata
+python-louvain==0.16
+mdutils==1.6.0
