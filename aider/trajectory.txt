@@ -1,0 +1,809 @@
+/Users/symbolk/miniconda3/envs/aider/bin/python /Users/symbolk/coding/ai/aider/aider/repomap.py /Users/symbolk/coding/ai/OpenHands/openhands
+Warning: Input is not a terminal (fd=0).
+RepoMap initialized with map_mul_no_files: 8
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/__init__.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/agenthub/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/browsing_agent/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/browsing_agent/browsing_ag
+ent.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/browsing_agent/prompt.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/browsing_agent/response_pa
+rser.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/browsing_agent/utils.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/codeact_agent/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/codeact_agent/codeact_agen
+t.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/codeact_agent/function_cal
+ling.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/codeact_swe_agent/__init__
+.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/codeact_swe_agent/action_p
+arser.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/codeact_swe_agent/codeact_
+swe_agent.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/codeact_swe_agent/prompt.p
+y
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/codeact_swe_agent/response
+_parser.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/delegator_agent/__init__.p
+y
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/delegator_agent/agent.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/dummy_agent/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/dummy_agent/agent.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/agenthub/micro/agent.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/micro/instructions.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/micro/registry.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/planner_agent/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/planner_agent/agent.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/planner_agent/prompt.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/agenthub/planner_agent/response_par
+ser.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/controller/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/controller/action_parser.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/controller/agent.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/controller/agent_controller.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/controller/state/state.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/controller/state/task.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/controller/stuck.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/core/cli.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/core/config/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/core/config/agent_config.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/core/config/app_config.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/core/config/config_utils.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/core/config/llm_config.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/core/config/sandbox_config.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/core/config/security_config.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/core/config/utils.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/core/const/guide_url.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/core/download.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/core/exceptions.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/core/logger.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/core/loop.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/core/main.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/core/message.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/core/schema/__init__.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/core/schema/action.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/core/schema/agent.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/core/schema/config.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/core/schema/observation.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/core/utils/__init__.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/core/utils/json.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/events/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/events/action/__init__.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/events/action/action.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/events/action/agent.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/events/action/browse.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/events/action/commands.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/events/action/empty.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/events/action/files.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/events/action/message.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/events/action/tasks.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/events/event.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/events/observation/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/events/observation/agent.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/events/observation/browse.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/events/observation/commands.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/events/observation/delegate.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/events/observation/empty.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/events/observation/error.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/events/observation/files.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/events/observation/observation.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/events/observation/reject.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/events/observation/success.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/events/serialization/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/events/serialization/action.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/events/serialization/event.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/events/serialization/observation.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/events/serialization/utils.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/events/stream.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/events/tool.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/events/utils.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/linter/__init__.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/llm/__init__.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/llm/async_llm.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/llm/bedrock.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/llm/debug_mixin.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/llm/fn_call_converter.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/llm/llm.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/llm/metrics.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/llm/retry_mixin.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/llm/streaming_llm.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/memory/__init__.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/memory/condenser.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/memory/memory.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/resolver/__init__.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/resolver/github_issue.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/resolver/io_utils.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/resolver/issue_definitions.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/resolver/patching/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/resolver/patching/apply.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/resolver/patching/exceptions.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/resolver/patching/patch.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/resolver/patching/snippets.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/resolver/resolve_all_issues.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/resolver/resolve_issue.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/resolver/resolver_output.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/resolver/send_pull_request.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/resolver/utils.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/resolver/visualize_resolver_output.
+py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/runtime/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/action_execution_server.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/runtime/base.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/browser/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/browser/browser_env.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/runtime/browser/utils.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/builder/__init__.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/runtime/builder/base.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/builder/docker.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/builder/remote.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/impl/e2b/e2b_runtime.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/impl/e2b/filestore.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/impl/e2b/sandbox.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/impl/eventstream/containers
+.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/impl/eventstream/eventstrea
+m_runtime.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/impl/modal/modal_runtime.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/impl/remote/remote_runtime.
+py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/impl/runloop/runloop_runtim
+e.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/plugins/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/plugins/agent_skills/__init
+__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/plugins/agent_skills/agents
+kills.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/plugins/agent_skills/file_e
+ditor/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/plugins/agent_skills/file_o
+ps/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/plugins/agent_skills/file_o
+ps/file_ops.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/plugins/agent_skills/file_r
+eader/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/plugins/agent_skills/file_r
+eader/file_readers.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/plugins/agent_skills/utils/
+config.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/plugins/agent_skills/utils/
+dependency.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/plugins/jupyter/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/plugins/jupyter/execute_ser
+ver.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/plugins/requirement.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/plugins/vscode/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/utils/__init__.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/runtime/utils/bash.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/runtime/utils/command.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/runtime/utils/edit.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/runtime/utils/files.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/runtime/utils/request.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/utils/runtime_build.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/utils/runtime_init.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/utils/singleton.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/runtime/utils/system.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/utils/system_stats.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/runtime/utils/tenacity_stop.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/security/__init__.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/security/analyzer.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/security/invariant/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/security/invariant/analyzer.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/security/invariant/client.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/security/invariant/nodes.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/security/invariant/parser.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/security/invariant/policies.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/security/options.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/server/__init__.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/server/app.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/server/auth.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/server/data_models/feedback.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/server/file_config.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/server/github_utils.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/server/listen.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/server/middleware.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/server/mock/listen.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/server/routes/auth.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/server/routes/conversation.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/server/routes/feedback.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/server/routes/files.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/server/routes/public.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/server/routes/security.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/server/session/__init__.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/server/session/agent_session.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/server/session/conversation.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/server/session/manager.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/server/session/session.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/server/shared.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/server/sheets_client.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/server/socket.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/server/static.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/storage/__init__.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/storage/files.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/storage/google_cloud.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/storage/local.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/storage/memory.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/storage/s3.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/utils/async_utils.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/utils/chunk_localizer.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/utils/embeddings.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/utils/microagent.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/utils/prompt.py
+Processing
+/Users/symbolk/coding/ai/OpenHands/openhands/utils/shutdown_listener.py
+Processing /Users/symbolk/coding/ai/OpenHands/openhands/utils/tenacity_stop.py
+
+  Degraded performance warning:
+  Launching Chrome on Mac Silicon (arm64) from an x64 Node installation results in
+  Rosetta translating the Chrome binary, even if Chrome is already arm64. This would
+  result in huge performance issues. To resolve this, you must run Puppeteer with
+  a version of Node built for arm64.
+Found 1 mermaid charts in Markdown input
+[@zenuml/core] Store is a function and is not initiated in 1 second.
+ ✅ ./repo_overview-1.png
+Mermaid diagram saved to: /Users/symbolk/coding/ai/OpenHands/openhands/repo_overview.png
+Processing community 3...
+Graph contains cycles, applying Tarjan's algorithm for condensation
+No valid topological sort paths found
+Community 3 description:
+Processing community 2...
+Graph contains cycles, applying Tarjan's algorithm for condensation
+Found 2 topological sort paths
+Detected 22 strongly connected components
+Community 2 description:
+这个代码社区/模块主要用于分析代码并提供简洁的总结和见解。
+Processing community 9...
+Graph contains cycles, applying Tarjan's algorithm for condensation
+Found 1 topological sort paths
+Detected 14 strongly connected components
+Community 9 description: 该脚本用于从GitHub仓库中解决单个issue并生成相应的pull
+requests或comments，通过命令行参数配置相关选项。
+Processing community 1...
+Graph contains cycles, applying Tarjan's algorithm for condensation
+No valid topological sort paths found
+Community 1 description:
+Processing community 11...
+Graph contains cycles, applying Tarjan's algorithm for condensation
+No valid topological sort paths found
+Community 11 description:
+Processing community 4...
+No valid topological sort paths found
+Community 4 description:
+Processing community 5...
+Graph contains cycles, applying Tarjan's algorithm for condensation
+Found 1 topological sort paths
+Detected 1 strongly connected components
+Community 5 description: 该代码模块定义了数据模型来描述不同类型的观测数据。
+Processing community 6...
+Graph contains cycles, applying Tarjan's algorithm for condensation
+Found 1 topological sort paths
+Detected 1 strongly connected components
+Community 6 description: 这个代码社区/模块用于获取和设置包的版本信息。
+Processing community 7...
+Graph contains cycles, applying Tarjan's algorithm for condensation
+Found 1 topological sort paths
+Detected 1 strongly connected components
+Community 7 description:
+这个代码社区/模块用于定义一个枚举类以配置不同应用的参数类型。
+Processing community 8...
+Graph contains cycles, applying Tarjan's algorithm for condensation
+Found 1 topological sort paths
+Detected 2 strongly connected components
+Community 8 description:
+这个代码模块用于配置和启动集成了Socket.IO和ASGI的应用服务器，并设置静态文件服务
+以处理单页应用的路由。
+Processing community 10...
+Graph contains cycles, applying Tarjan's algorithm for condensation
+Found 1 topological sort paths
+Detected 1 strongly connected components
+Community 10 description: 这个代码社区/模块用于定义一个表示代理状态的枚举类。
+Processing community 12...
+Graph contains cycles, applying Tarjan's algorithm for condensation
+Found 1 topological sort paths
+Detected 1 strongly connected components
+Community 12 description: 该代码模块定义了不同类型的行动及其对应的字符串表示。
+
+Community 2:
+Description:
+Files:
+- utils/async_utils.py:
+- server/auth.py:
+- agenthub/browsing_agent/response_parser.py:
+- controller/agent.py:
+- agenthub/micro/agent.py:
+- server/sheets_client.py:
+- agenthub/codeact_swe_agent/__init__.py:
+- runtime/utils/edit.py:
+- controller/stuck.py:
+- llm/llm.py:
+- events/serialization/observation.py:
+- runtime/browser/browser_env.py:
+- runtime/impl/modal/modal_runtime.py:
+- security/invariant/nodes.py:
+- agenthub/codeact_swe_agent/response_parser.py:
+- llm/streaming_llm.py:
+- agenthub/codeact_swe_agent/action_parser.py:
+- server/session/agent_session.py:
+- resolver/patching/exceptions.py:
+- memory/memory.py:
+- agenthub/dummy_agent/__init__.py:
+- server/session/session.py:
+- server/middleware.py:
+- agenthub/browsing_agent/browsing_agent.py:
+- llm/debug_mixin.py:
+- agenthub/planner_agent/response_parser.py:
+- llm/async_llm.py:
+- utils/prompt.py:
+- runtime/utils/system_stats.py:
+- memory/condenser.py:
+- controller/action_parser.py:
+- agenthub/__init__.py:
+- llm/metrics.py:
+- agenthub/browsing_agent/prompt.py:
+- runtime/builder/remote.py:
+- runtime/impl/e2b/sandbox.py:
+- agenthub/planner_agent/agent.py:
+- runtime/utils/bash.py:
+- llm/fn_call_converter.py:
+- agenthub/dummy_agent/agent.py:
+- resolver/issue_definitions.py:
+- runtime/utils/command.py:
+- agenthub/codeact_swe_agent/codeact_swe_agent.py:
+- utils/microagent.py:
+- runtime/impl/e2b/e2b_runtime.py:
+- server/routes/conversation.py:
+- runtime/utils/request.py:
+- server/session/conversation.py:
+- agenthub/delegator_agent/__init__.py:
+- server/routes/security.py:
+- agenthub/codeact_agent/codeact_agent.py:
+- security/invariant/parser.py:
+- runtime/plugins/jupyter/execute_server.py:
+- agenthub/delegator_agent/agent.py:
+- core/message.py:
+- security/invariant/analyzer.py:
+- server/github_utils.py:
+- server/routes/auth.py:
+- core/logger.py:
+- events/serialization/action.py:
+- agenthub/browsing_agent/__init__.py:
+- runtime/impl/runloop/runloop_runtime.py:
+- core/exceptions.py:
+- agenthub/codeact_agent/__init__.py:
+- security/analyzer.py:
+- controller/state/task.py:
+- server/app.py:
+- security/invariant/client.py:
+- agenthub/planner_agent/__init__.py:
+- runtime/builder/docker.py:
+- runtime/browser/utils.py:
+
+Community 1:
+Description: 这个代码社区/模块主要用于分析代码并提供简洁的总结和见解。
+Files:
+- runtime/utils/system.py:
+- storage/local.py:
+- resolver/patching/patch.py:
+- resolver/patching/apply.py:
+- runtime/impl/eventstream/containers.py:
+- resolver/resolver_output.py:
+- server/routes/public.py:
+- storage/files.py:
+- storage/__init__.py:
+- storage/memory.py:
+- runtime/plugins/agent_skills/utils/config.py: 此文件用于获取OpenAI
+API的相关配置，并初始化OpenAI客户端。
+- runtime/builder/base.py:
+- runtime/utils/runtime_build.py:
+- storage/s3.py:
+- storage/google_cloud.py:
+- agenthub/micro/instructions.py:
+- server/routes/files.py: 该文件定义了一个Web API，用于文件上传、下载和管理。
+- runtime/plugins/agent_skills/file_reader/file_readers.py:
+该文件用于分析代码并提供简洁的总结和见解。
+- resolver/patching/snippets.py:
+- runtime/plugins/agent_skills/file_ops/file_ops.py:
+- agenthub/micro/registry.py:
+- llm/bedrock.py:
+- agenthub/browsing_agent/utils.py:
+- resolver/github_issue.py:
+- server/file_config.py: 此文件定义了文件上传配置加载和验证逻辑。
+- runtime/impl/e2b/filestore.py:
+
+Community 8:
+Description: 该脚本用于从GitHub仓库中解决单个issue并生成相应的pull
+requests或comments，通过命令行参数配置相关选项。
+Files:
+- runtime/utils/files.py:
+- runtime/utils/runtime_init.py:
+- runtime/plugins/jupyter/__init__.py:
+- resolver/send_pull_request.py: 该脚本用于处理GitHub问题和生成拉取请求。
+- utils/shutdown_listener.py:
+- utils/embeddings.py:
+- llm/retry_mixin.py:
+- resolver/utils.py: 此文件主要用于解析 GitHub 问题或评论，并生成相应的 pull
+requests 或 comments，通过命令行参数配置运行环境和处理流程。
+- runtime/impl/eventstream/eventstream_runtime.py:
+- runtime/utils/tenacity_stop.py:
+- runtime/base.py:
+- resolver/resolve_issue.py: 此文件主要用于从 GitHub 仓库中解决单个
+issues，并生成相应的 pull requests 或
+comments。它接受命令行参数以运行脚本。```python
+    parser.add_argument(
+        '--issue-number',
+        type=int,
+        help='Issue number to resolve.',
+    )
+    )
+    parser.add_argument(
+        '--max-iterations',
+        type=str,
+        default=None,
+        help='Container image to use for runtime execution.
+    )
+    parser.add_argument(
+        '--prompt-template',
+        type=int_or_none,
+        help='Maximum number of iterations to run the model.',
+    )
+    parser.add_argument(
+        '--output-dir',
+        type=int,
+        required=True，
+        help='Output directory to write the results.'
+    )
+    parser.add_argument(
+        '--issue-type',
+        default=None,
+        choices=['issue', 'pr'],
+        help='Type of issue, either open issue or PR comment.',
+    )
+    parser.add_argument(
+        '--repo-instruction-file',
+        required=False,
+        default output the results.',
+    )
+    parser.add_argument(
+        '--llm-model',
+        type=str,
+        default=None,
+        help='Model name to use for the task.例如，如`gpt-3.5', 'api-key',
+default=None, help='API key for LLM model API.'
+    )
+    parser.add_argument(
+        '--repo-instruction-file',
+        type=str,
+        default=None,
+        help='Base URL of the LLM server.',
+    )
+    )
+    parser.add_argument(
+        '--target-branch',
+        type=str,
+        required=False,
+        help='Target branch to create a PR against (for PRs). If not specified,
+uses the PR base branch.',
+    )
+    args = parser.parse_args()
+
+    resolve_issue_from_cli(args)
+```python
+```python
+import argparse
+
+def int_or_none(value):
+    if value.lower() == 'none':
+        return None
+    else:
+        return int(value)
+
+def main():
+    parser = argparse.ArgumentParser(description='Resolve a single issue from
+GitHub.')
+    parser.add_argument('--repo', type=str, required=True, help='Repository in
+form `owner/repo`.')
+    parser.add_argument(
+        '--token', type=str, default=None, help='GitHub token to access the
+repository.'
+    )
+    parser.add_argument(
+        '--username', type=str, default=None, help='GitHub username to access
+the repository.'
+    )
+    parser.add_argument(
+        '--runtime-container-image',
+        type=str,
+        default=None,
+        help='Container image to use for runtime execution.',
+    )
+    parser.add_argument(
+        '--max-iterations', type=int_or_none, default=50, help='Maximum number
+of iterations to run.'
+    )
+    parser.add_argument(
+        '--issue-number', type=int, required=True, help='Issue number to
+resolve.'
+    )
+    parser.add_argument(
+        '--comment-id',
+        type=int_or_none,
+        required=False,
+        default=None,
+        help='Resolve a specific comment.',
+    )
+    parser.add_argument(
+        '--output-dir', type=str, default='output', help='Output directory for
+results.'
+    )
+    parser.add_argument(
+        '--llm-model', type=str, default=None, help='LLM model to use for the
+task.'
+    )
+    parser.add_argument(
+        '--llm-api-key', type=str, default=None, help='API key for LLM model.'
+    )
+    parser.add_argument(
+        '--llm-base-url',
+        type=str,
+        default=None,
+        help='Base URL of the LLM server.',
+    )
+    parser.add_argument(
+        '--prompt-file',
+        type=str,
+        default=None,
+        help='Path to the prompt template file in Jinja format.',
+    )
+    parser.add_argument(
+        '--repo-instruction-file',
+        type=str,
+        default=None,
+        help='Path to the repository instruction file in text format.'
+    )
+    parser.add_argument(
+        '--issue-type',
+        type=str,
+        default='issue',
+        choices=['issue', 'pr'],
+        help='Type of issue to resolve, either open issue or PR comments.',
+    )
+    parser.add_argument(
+        '--target-branch',
+        type=str,
+        default=None,
+        help="Target branch to pull and create a PR against (for PRs). If not
+specified, uses the PR's base branch.",
+    )
+
+    args = parser.parse_args()
+    resolve_issue_from_cli(args)
+
+if __name__ == '__main__':
+    main()
+```
+
+### 用途概述
+此脚本用于从 GitHub 解决单个问题并生成相应的 pull requests 或
+comments。它接受命令行参数来配置运行环境和处理流程，包括仓库信息、API
+密钥、迭代次数、输出目录等。 ```python
+- resolver/visualize_resolver_output.py:
+- runtime/plugins/requirement.py:
+- resolver/io_utils.py:
+- runtime/action_execution_server.py:
+- runtime/impl/remote/remote_runtime.py:
+- utils/tenacity_stop.py:
+- resolver/resolve_all_issues.py: 此文件主要用于从 GitHub 仓库中的 pull requests
+或 comments。
+- runtime/plugins/vscode/__init__.py:
+- server/mock/listen.py:
+- runtime/plugins/agent_skills/__init__.py:
+
+Community 0:
+Description:
+Files:
+- runtime/__init__.py:
+- core/config/utils.py:
+- utils/chunk_localizer.py:
+- server/routes/feedback.py:
+- server/session/manager.py:
+- server/socket.py:
+- agenthub/planner_agent/prompt.py:
+- core/utils/json.py:
+- controller/agent_controller.py:
+- events/serialization/utils.py:
+- core/loop.py:
+- events/stream.py:
+- core/main.py:
+- events/tool.py:
+- controller/state/state.py:
+- events/serialization/event.py:
+- server/data_models/feedback.py:
+- core/cli.py:
+- server/shared.py:
+
+Community 10:
+Description:
+Files:
+- events/observation/browse.py:
+- core/config/sandbox_config.py:
+- events/observation/success.py:
+- events/observation/delegate.py:
+- core/config/agent_config.py:
+- events/action/message.py:
+- core/config/llm_config.py:
+- events/action/agent.py:
+- core/config/app_config.py:
+- events/observation/error.py:
+- events/action/commands.py:
+- core/config/config_utils.py:
+- events/action/browse.py:
+- events/action/empty.py:
+- events/observation/files.py:
+- events/event.py:
+- events/action/action.py:
+- core/config/security_config.py:
+- events/observation/empty.py:
+- events/action/tasks.py:
+- agenthub/codeact_agent/function_calling.py:
+- events/observation/agent.py:
+- events/utils.py:
+- events/action/files.py:
+- events/observation/observation.py:
+- events/observation/reject.py:
+- events/observation/commands.py:
+
+Community 3:
+Description:
+Files:
+- runtime/plugins/agent_skills/agentskills.py:
+- runtime/plugins/agent_skills/utils/dependency.py:
+- runtime/plugins/agent_skills/file_reader/__init__.py:
+- runtime/plugins/agent_skills/file_ops/__init__.py:
+
+Community 4:
+Description: 该代码模块定义了数据模型来描述不同类型的观测数据。
+Files:
+- core/schema/observation.py:
+该文件定义了一个数据模型用于描述不同类型的数据观察。
+
+Community 5:
+Description: 这个代码社区/模块用于获取和设置包的版本信息。
+Files:
+- __init__.py: 此文件用于获取并设置包版本信息。
+
+Community 6:
+Description: 这个代码社区/模块用于定义一个枚举类以配置不同应用的参数类型。
+Files:
+- core/schema/config.py: 该文件定义了一个枚举类用于配置不同类型的应用参数。
+
+Community 7:
+Description:
+这个代码模块用于配置和启动集成了Socket.IO和ASGI的应用服务器，并设置静态文件服务
+以处理单页应用的路由。
+Files:
+- server/static.py: 此文件用于配置静态文件服务，以便在单页应用中处理路由。
+- server/listen.py: 该文件用于设置并启动一个集成Socket.IO和ASGI的应用服务器。
+
+Community 9:
+Description: 这个代码社区/模块用于定义一个表示代理状态的枚举类。
+Files:
+- core/schema/agent.py: 该文件定义了一个表示代理状态的枚举类。
+
+Community 11:
+Description: 该代码模块定义了不同类型的行动及其对应的字符串表示。
+Files:
+- core/schema/action.py: 该文件定义了不同类型的行动及其对应的字符串表示。
+Build 2180 lines in repo map
+
+Process finished with exit code 0
