@@ -459,7 +459,7 @@ class RepoMap:
         save_mermaid_diagram(self.root, G)
 
         communities = detect_communities(G)
-        community_infos = generate_community_descriptions(G, communities, lang='zh')
+        community_infos = generate_community_descriptions(G, self.root, communities, lang='zh')
         # 查看结果
         if self.verbose and community_infos:
             for community_id, info in community_infos.items():

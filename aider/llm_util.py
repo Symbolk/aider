@@ -51,23 +51,24 @@ def generate_description(content, system_prompt, task_prompt):
         print(f"Error details: {str(e)}")
         return ""
 
-def get_file_content(repo_root, fname):
+def get_file_content(repo_path, fname):
     """获取文件内容"""
     try:
         # 尝试将相对路径转换为绝对路径
-        abs_path = os.path.join(repo_root, fname) if not os.path.isabs(fname) else fname
-        return io.read_text(abs_path)
+        abs_path = os.path.join(repo_path, fname) if not os.path.isabs(fname) else fname
+        with open(str(abs_path), "r", encoding='utf-8') as f:
+            return f.read()
     except Exception as e:
         print(f"Failed to read file {fname}: {e}")
         return ""
 
-def process_file_recursively(community_graph, node, visited, descriptions, lang):
+def process_file_recursively(community_graph, repo_path, node, visited, descriptions, lang):
     """递归处理文件，生成描述"""
     if node in visited:
         return descriptions.get(node, "")
         
     visited.add(node)
-    content = get_file_content(node)
+    content = get_file_content(repo_path, node)
     
     # 获取依赖于当前文件的其他文件
     dependent_files = list(community_graph.predecessors(node))
@@ -75,7 +76,7 @@ def process_file_recursively(community_graph, node, visited, descriptions, lang)
     
     # 递归处理依赖文件
     for dep in dependent_files:
-        desc = process_file_recursively(community_graph, dep, visited, descriptions, lang)
+        desc = process_file_recursively(community_graph, repo_path, dep, visited, descriptions, lang)
         if desc:
             dependent_descriptions.append(desc)
             
@@ -90,7 +91,7 @@ def process_file_recursively(community_graph, node, visited, descriptions, lang)
     descriptions[node] = description
     return description
 
-def generate_community_descriptions(G, communities, lang='en'):
+def generate_community_descriptions(G, repo_path, communities, lang='en'):
     """
     为每个社区生成描述
     
@@ -147,7 +148,7 @@ def generate_community_descriptions(G, communities, lang='en'):
                 continue
             end_node = path[-1]
             visited = set()
-            process_file_recursively(community_graph, end_node, visited, descriptions, lang)
+            process_file_recursively(community_graph, repo_path, end_node, visited, descriptions, lang)
             
         info.file_descriptions = descriptions
         
@@ -157,7 +158,9 @@ def generate_community_descriptions(G, communities, lang='en'):
             system_prompt = PROMPTS["system_prompt"][lang]
             prompt = PROMPTS["community_overview"][lang] + all_descriptions
             info.description = generate_description(system_prompt, "", prompt)
-            
+        else:
+            info.description = ""
+
         community_infos[i] = info
         
         print(f"Community {i+1} description: {info.description}")
