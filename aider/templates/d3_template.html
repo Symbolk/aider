@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Code Dependencies Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { margin: 0; }
+        #graph { width: 100vw; height: 100vh; }
+        .node { cursor: pointer; }
+        .node text { font-size: 12px; }
+        .link { stroke: #999; stroke-opacity: 0.6; }
+        .tooltip {
+            position: absolute;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="graph"></div>
+    <script>
+        const data = $DATA;
+        
+        // 创建SVG
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const svg = d3.select("#graph")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+            
+        // 创建缩放和平移行为
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 4])
+            .on("zoom", (event) => {
+                container.attr("transform", event.transform);
+            });
+            
+        svg.call(zoom);
+        
+        const container = svg.append("g");
+        
+        // 创建力导向图布局
+        const simulation = d3.forceSimulation(data.nodes)
+            .force("link", d3.forceLink(data.links).id(d => d.id))
+            .force("charge", d3.forceManyBody().strength(-1000))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("collide", d3.forceCollide().radius(d => (d.type === "community" ? 100 : 30)));
+            
+        // 绘制连接线
+        const link = container.append("g")
+            .selectAll("line")
+            .data(data.links)
+            .join("line")
+            .attr("class", "link")
+            .attr("stroke-width", d => Math.sqrt(d.weight));
+            
+        // 创建节点组
+        const node = container.append("g")
+            .selectAll(".node")
+            .data(data.nodes)
+            .join("g")
+            .attr("class", "node")
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+                
+        // 为社区节点添加圆圈
+        node.filter(d => d.type === "community")
+            .append("circle")
+            .attr("r", d => Math.sqrt(d.size) * 20)
+            .attr("fill", "#69b3a2")
+            .attr("fill-opacity", 0.3);
+            
+        // 为文件节点添加圆圈
+        node.filter(d => d.type === "file")
+            .append("circle")
+            .attr("r", 5)
+            .attr("fill", d => d.community ? "#69b3a2" : "#666");
+            
+        // 添加节点标签
+        node.append("text")
+            .text(d => d.name)
+            .attr("x", 8)
+            .attr("y", 3);
+            
+        // 添加提示框
+        const tooltip = d3.select("body")
+            .append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+            
+        // 节点交互
+        node.on("click", (event, d) => {
+                if (d.type === "community") {
+                    // 切换社区节点的展开/折叠状态
+                    const isExpanded = !d.expanded;
+                    d.expanded = isExpanded;
+                    
+                    // 更新节点可见性
+                    node.style("display", nd => {
+                        if (nd.type === "file") {
+                            if (nd.community === d.id) {
+                                return isExpanded ? "block" : "none";
+                            }
+                        }
+                        return "block";
+                    });
+                    
+                    // 更新连接线可见性
+                    link.style("display", l => {
+                        const source = data.nodes[l.source.id];
+                        const target = data.nodes[l.target.id];
+                        if (source.community === d.id || target.community === d.id) {
+                            return isExpanded ? "block" : "none";
+                        }
+                        return "block";
+                    });
+                    
+                    // 重新启动模拟
+                    simulation.alpha(1).restart();
+                }
+            })
+            .on("mouseover", (event, d) => {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip.html(`${d.name}<br/>${d.type === "community" ? `Files: ${d.size}` : ""}`)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", () => {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+            
+        // 模拟tick事件
+        simulation.on("tick", () => {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+                
+            node
+                .attr("transform", d => `translate(${d.x},${d.y})`);
+        });
+        
+        // 拖拽函数
+        function dragstarted(event) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+        }
+        
+        function dragged(event) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+        }
+        
+        function dragended(event) {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+        }
+    </script>
+</body>
+</html>

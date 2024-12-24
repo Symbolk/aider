@@ -1,5 +1,6 @@
 from collections import defaultdict
 from loguru import logger
+import math
 
 def to_mermaid(G, max_edges=100):
     """
@@ -39,7 +40,7 @@ def to_mermaid(G, max_edges=100):
         if edge_id in processed_edges:
             continue
             
-        # 获取这对节点之间的所有边的权重总和
+        # 获取这对所有边的权重总和
         weight = sum(d.get('weight', 1) for _, _, d in G.edges(data=True) if (_, _) == edge_id)
         
         # 简化节点标签
@@ -183,7 +184,7 @@ def detect_communities(G):
         # 将MultiDiGraph转换为无向图以便进行社区检测
         undirected_G = G.to_undirected()
         
-        # 如果图为空或只有一个节点，返回None
+        # 如果图为空或只��一个节点，返回None
         if len(undirected_G.nodes()) <= 1:
             return None
             
@@ -287,7 +288,7 @@ def topological_sort_paths(G, source=None, target=None, max_paths=100):
         return all_paths
         
     def _expand_path(path, scc_nodes):
-        """展开缩点后的路径，将每个SCC节点替换为其包含的原始节点"""
+        """展开缩点后的路径，将每个SCC节��替换为其包含的原始节点"""
         expanded_path = []
         for node in path:
             if node.startswith('scc_'):
@@ -366,3 +367,374 @@ def topological_sort_paths(G, source=None, target=None, max_paths=100):
         logger.info("No valid topological sort paths found")
             
     return paths, scc_nodes if has_cycle else {}
+
+def save_d3_visualization(repo_root, G, communities=None, output_path=None):
+    """
+    将依赖图保存为可交互的d3.js可视化HTML文件
+    
+    Args:
+        repo_root: str 仓库根目录
+        G: networkx.MultiDiGraph 代码依赖关系图
+        communities: dict 社区检测结果，key是社区id，value是文件集合
+        output_path: str 输出文件路径，默认为 root/repo_overview.html
+    """
+    import json
+    import os
+    from pathlib import Path
+    from collections import defaultdict
+    
+    # 如果没有指定输出路径，使用默认路径
+    if output_path is None:
+        output_path = os.path.join(repo_root, "repo_overview.html")
+        
+    # 简化文件名的函数
+    def simplify_filename(fname):
+        return os.path.basename(fname)
+    
+    # 准备节点数据
+    nodes = []
+    node_id_map = {}  # 用于将文件名映射到数字id
+    
+    # 计算每个节点的度
+    node_degrees = defaultdict(int)
+    for u, v in G.edges():
+        node_degrees[u] += 1
+        node_degrees[v] += 1
+    
+    # 过滤掉度数太小的节点（可选）
+    min_degree = 2  # 可以调整这个阈值
+    significant_nodes = {node for node, degree in node_degrees.items() if degree >= min_degree}
+    
+    # 生成社区颜色映射和描述
+    community_colors = {}
+    community_descriptions = {}
+    if communities:
+        # 预定义一些好看的颜色
+        colors = [
+            "#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33",
+            "#A65628", "#F781BF", "#999999", "#66C2A5", "#FC8D62", "#8DA0CB"
+        ]
+        for i, community_id in enumerate(communities.keys()):
+            community_colors[community_id] = colors[i % len(colors)]
+            # 获取社区描��（如果有的话）
+            if hasattr(communities[community_id], 'description'):
+                community_descriptions[community_id] = communities[community_id].description
+            else:
+                community_descriptions[community_id] = f"Community {community_id}"
+            
+    # 添加文件节点
+    for i, node in enumerate(G.nodes()):
+        if node in significant_nodes:
+            # 获取文件描述（如果有的话）
+            file_description = None
+            if communities:
+                for comm_id, comm_nodes in communities.items():
+                    if node in comm_nodes and hasattr(communities[comm_id], 'file_descriptions'):
+                        file_description = communities[comm_id].file_descriptions.get(node)
+                        break
+
+            node_data = {
+                "id": i,
+                "name": simplify_filename(node),
+                "full_name": node,
+                "type": "file",
+                "community_id": None,
+                "color": "#666666",
+                "degree": node_degrees[node],
+                "radius": max(8, math.sqrt(node_degrees[node]) * 3),
+                "description": file_description or G.nodes[node].get('description', ''),
+                "community_description": ""
+            }
+            
+            # 如果节点属于某个社区，添加社区信息
+            if communities:
+                for comm_id, comm_nodes in communities.items():
+                    if node in comm_nodes:
+                        node_data["community_id"] = comm_id
+                        node_data["color"] = community_colors[comm_id]
+                        node_data["community_description"] = community_descriptions[comm_id]
+                        break
+                        
+            nodes.append(node_data)
+            node_id_map[node] = i
+    
+    # 准备边数据，合并相同节点间的多条边
+    edge_weights = defaultdict(float)
+    edge_idents = defaultdict(set)
+    
+    # 设置边的权重阈值
+    min_weight = 1.0  # 可以调整这个阈值
+    
+    for u, v, data in G.edges(data=True):
+        if u not in significant_nodes or v not in significant_nodes:
+            continue
+        key = (node_id_map[u], node_id_map[v])
+        weight = data.get("weight", 1)
+        edge_weights[key] += weight
+        if "ident" in data:
+            edge_idents[key].add(data["ident"])
+            
+    # 转换为边列表，只保留权重大于阈值的边
+    links = []
+    for (source, target), weight in edge_weights.items():
+        if weight >= min_weight:
+            links.append({
+                "source": source,
+                "target": target,
+                "weight": weight,
+                "idents": list(edge_idents.get((source, target), set()))
+            })
+    
+    # 准备图数据
+    graph_data = {
+        "nodes": nodes,
+        "links": links
+    }
+    
+    # 生成HTML模板
+    html_template = '''<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Code Dependencies Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { margin: 0; }
+        #graph { width: 100vw; height: 100vh; }
+        .node { cursor: pointer; }
+        .node text { 
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            fill: #333;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+        .link { 
+            stroke: #999; 
+            stroke-opacity: 0.6; 
+        }
+        .tooltip {
+            position: absolute;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 6px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            pointer-events: none;
+            max-width: 400px;
+            word-wrap: break-word;
+            white-space: normal;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            line-height: 1.4;
+        }
+        .tooltip h4 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            border-bottom: 1px solid #666;
+            padding-bottom: 5px;
+        }
+        .tooltip .path {
+            word-break: break-all;
+            margin-bottom: 8px;
+        }
+        .tooltip .description {
+            font-style: italic;
+            color: #ccc;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="graph"></div>
+    <script>
+        const data = ''' + json.dumps({"nodes": nodes, "links": links}) + ''';
+        
+        /* 创建SVG */
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const svg = d3.select("#graph")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+            
+        /* 创建缩放和平移行为 */
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 4])
+            .on("zoom", (event) => {
+                container.attr("transform", event.transform);
+            });
+            
+        svg.call(zoom);
+        
+        const container = svg.append("g");
+        
+        /* 创建力导向图布局 */
+        const simulation = d3.forceSimulation(data.nodes)
+            .force("link", d3.forceLink(data.links)
+                .id(d => d.id)
+                .distance(d => 50 + Math.sqrt(d.source.degree + d.target.degree) * 3))  /* 增加基础距离 */
+            .force("charge", d3.forceManyBody()
+                .strength(d => -150 - d.degree * 3)  /* 增加斥力 */
+                .distanceMin(20)  /* 增加最小距离 */
+                .distanceMax(300))  /* ��加最大距离 */
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("x", d3.forceX(width / 2).strength(0.05))  /* 减小水平力 */
+            .force("y", d3.forceY(height / 2).strength(0.05))  /* 减小垂直力 */
+            .force("collide", d3.forceCollide()
+                .radius(d => d.radius * 2)  /* 增加碰撞半径 */
+                .strength(1)  /* 最大碰撞力 */
+                .iterations(3));  /* 增加迭代次数 */
+            
+        /* 绘制连接线 */
+        const link = container.append("g")
+            .selectAll("line")
+            .data(data.links)
+            .join("line")
+            .attr("class", "link")
+            .attr("stroke-width", d => Math.sqrt(d.weight));
+            
+        /* 创建节点组 */
+        const node = container.append("g")
+            .selectAll(".node")
+            .data(data.nodes)
+            .join("g")
+            .attr("class", "node")
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+                
+        /* 添加节点圆圈 */
+        node.append("circle")
+            .attr("r", d => d.radius)
+            .attr("fill", d => d.color)
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 1.5);
+            
+        /* 添加节点标签 */
+        node.append("text")
+            .text(d => d.name)
+            .attr("dy", d => d.radius * 2.5 + 5)  /* 增加标签与节点的距离 */
+            .attr("text-anchor", "middle")
+            .style("font-size", d => Math.max(10, Math.min(d.radius * 0.8, 14)) + "px")
+            .each(function(d) {  /* 检测并避免标签重叠 */
+                const bbox = this.getBBox();
+                d.labelHeight = bbox.height;
+                d.labelWidth = bbox.width;
+            });
+            
+        /* 设置初始缩放以适应屏幕 */
+        const bounds = container.node().getBBox();
+        const padding = 50;  /* 添加边距 */
+        const scale = Math.min(
+            (width - padding * 2) / bounds.width,
+            (height - padding * 2) / bounds.height
+        ) * 0.95;  /* 留出更多边距 */
+        
+        /* 计算平移距离，确保图形居中 */
+        const tx = (width - bounds.width * scale) / 2 - bounds.x * scale;
+        const ty = (height - bounds.height * scale) / 2 - bounds.y * scale;
+        
+        /* 立即应用变换，不使用动画 */
+        container.attr("transform", `translate(${tx},${ty})scale(${scale})`);
+        
+        /* 更新力导向图的alpha值以确保布局稳定 */
+        simulation.alpha(0.3).restart();
+        
+        /* 在tick事件中处理标签位置，避免重叠 */
+        simulation.on("tick", () => {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+                
+            node.attr("transform", d => `translate(${d.x},${d.y})`);
+            
+            /* 标签碰撞检测和调整 */
+            const labels = node.selectAll("text");
+            labels.each(function(d1) {
+                labels.each(function(d2) {
+                    if (d1.id !== d2.id) {
+                        const dx = d1.x - d2.x;
+                        const dy = d1.y - d2.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const minDist = (d1.labelHeight + d2.labelHeight) / 2 + 10;
+                        
+                        if (dist < minDist) {
+                            const angle = Math.atan2(dy, dx);
+                            const moveDistance = (minDist - dist) / 2;
+                            
+                            d1.y += Math.sin(angle) * moveDistance;
+                            d2.y -= Math.sin(angle) * moveDistance;
+                        }
+                    }
+                });
+            });
+        });
+        
+        /* 添加提示框 */
+        const tooltip = d3.select("body")
+            .append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+            
+        /* 节点交互 */
+        node.on("mouseover", (event, d) => {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                    
+                let tooltipContent = `<h4>${d.name}</h4>`;
+                tooltipContent += `<div class="path"><strong>Full path:</strong><br>${d.full_name}</div>`;
+                tooltipContent += `<strong>Degree:</strong> ${d.degree}<br>`;
+                
+                if (d.community_id !== null) {
+                    tooltipContent += `<strong>Community:</strong> ${d.community_description}<br>`;
+                }
+                
+                if (d.description) {
+                    tooltipContent += `<div class="description"><strong>Description:</strong><br>${d.description}</div>`;
+                }
+                
+                tooltip.html(tooltipContent)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", () => {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+            
+        /* 拖拽函数 */
+        function dragstarted(event) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+        }
+        
+        function dragged(event) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+        }
+        
+        function dragended(event) {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+        }
+    </script>
+</body>
+</html>
+'''
+    
+    # 将图数据插入模板
+    html_content = html_template.replace("$DATA", json.dumps(graph_data))
+    
+    # 保存HTML文件
+    with open(output_path, "w") as f:
+        f.write(html_content)
+        
+    print(f"D3.js visualization saved to: {output_path}")

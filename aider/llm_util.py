@@ -20,7 +20,7 @@ PROMPTS = {
     },
     "community_overview": {
         "en": "Based on these file descriptions, please provide a concise overview of the purpose of this code community/module:\n",
-        "zh": "基于这些文件描述，请使用一句 中文简要概述这个代码社区/模块的用途：\n"
+        "zh": "基于这些文件描述，请使用一句 中文简要概述这个模块的用途：\n"
     }
 }
 

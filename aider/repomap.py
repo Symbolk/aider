@@ -8,19 +8,16 @@ import sys
 import time
 import warnings
 from collections import Counter, defaultdict, namedtuple
-from importlib import resources
 from pathlib import Path
 
 from diskcache import Cache
 from grep_ast import TreeContext, filename_to_lang
-from litellm import completion
 from pygments.lexers import guess_lexer_for_filename
 from pygments.token import Token
 from tqdm import tqdm
 
-from aider.dump import dump
-from aider.graph_alg import save_mermaid_diagram, detect_communities
-from aider.io import InputOutput
+from aider.graph_alg import save_mermaid_diagram, detect_communities, save_d3_visualization
+from aider.aiderio import InputOutput
 from aider.llm_util import generate_community_descriptions
 from aider.models import Model
 from aider.special import filter_important_files
@@ -456,19 +453,23 @@ class RepoMap:
 
                     G.add_edge(referencer, definer, weight=mul * num_refs, ident=ident)
 
-        save_mermaid_diagram(self.root, G)
+        # save_mermaid_diagram(self.root, G)
+        save_d3_visualization(self.root, G)  # 生成基本的依赖图可视化
 
         communities = detect_communities(G)
-        community_infos = generate_community_descriptions(G, self.root, communities, lang='zh')
-        # 查看结果
-        if self.verbose and community_infos:
-            for community_id, info in community_infos.items():
-                self.io.tool_output(f"\nCommunity {community_id}:")
-                self.io.tool_output(f"Description: {info.description}")
-                self.io.tool_output("Files:")
-                for file in info.files:
-                    self.io.tool_output(f"- {file}: {info.file_descriptions.get(file, '')}")
-
+        if communities:
+            community_infos = generate_community_descriptions(G, self.root, communities, lang='zh')
+            # 生成带社区信息的可视化
+            save_d3_visualization(self.root, G, communities, os.path.join(self.root, "repo_overview_with_communities.html"))
+            
+            # 查看结果
+            if self.verbose and community_infos:
+                for community_id, info in community_infos.items():
+                    self.io.tool_output(f"\nCommunity {community_id}:")
+                    self.io.tool_output(f"Description: {info.description}")
+                    self.io.tool_output("Files:")
+                    for file in info.files:
+                        self.io.tool_output(f"- {file}: {info.file_descriptions.get(file, '')}")
 
         if not references:
             pass
@@ -857,7 +858,7 @@ if __name__ == "__main__":
         # Git相关
         '.git',
         
-        # 其他构建和缓存目录
+        # 其他构建���缓存目录
         'target',      # Rust, Java等
         'bin',
         'obj',        # .NET
@@ -882,7 +883,7 @@ if __name__ == "__main__":
 
     fnames = []
 
-    extensions_to_include = extensions['Python']
+    extensions_to_include = extensions['Java']
     for fname in sys.argv[1:]:
         if Path(fname).is_dir():
             # 遍历目录下的所有文件
