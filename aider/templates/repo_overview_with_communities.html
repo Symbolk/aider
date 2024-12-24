@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Code Dependencies Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { margin: 0; }
+        #graph { width: 100vw; height: 100vh; }
+        .node { cursor: pointer; }
+        .node text { 
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            fill: #333;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+        .link { 
+            stroke: #999; 
+            stroke-opacity: 0.6; 
+        }
+        .tooltip {
+            position: absolute;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 6px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            pointer-events: none;
+            max-width: 400px;
+            word-wrap: break-word;
+            white-space: normal;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            line-height: 1.4;
+        }
+        .tooltip h4 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            border-bottom: 1px solid #666;
+            padding-bottom: 5px;
+        }
+        .tooltip .path {
+            word-break: break-all;
+            margin-bottom: 8px;
+        }
+        .tooltip .description {
+            font-style: italic;
+            color: #ccc;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="graph"></div>
+    <script>
+        const data = {"nodes": [{"id": 0, "name": "WebLogAspect.java", "full_name": "src/main/java/com/macro/mall/common/log/WebLogAspect.java", "type": "file", "community_id": 0, "color": "#E41A1C", "degree": 6, "radius": 8, "description": "\u8be5\u6587\u4ef6\u5b9a\u4e49\u4e86\u4e00\u4e2aSpring\u5207\u9762\u7c7b\u7528\u4e8e\u8bb0\u5f55Web\u8bf7\u6c42\u65e5\u5fd7\u3002", "community_description": "\u8fd9\u4e2a\u6a21\u5757\u63d0\u4f9b\u4e86\u8bb0\u5f55\u548c\u5c01\u88c5Web\u8bf7\u6c42\u65e5\u5fd7\u7684\u529f\u80fd\uff0c\u5e76\u5305\u542b\u83b7\u53d6\u8bf7\u6c42IP\u5730\u5740\u7684\u5de5\u5177\u65b9\u6cd5\u3002"}, {"id": 1, "name": "BaseRedisConfig.java", "full_name": "src/main/java/com/macro/mall/common/config/BaseRedisConfig.java", "type": "file", "community_id": 1, "color": "#377EB8", "degree": 3, "radius": 8, "description": "\u8be5\u6587\u4ef6\u914d\u7f6e\u4e86Spring Boot\u5e94\u7528\u4e2d\u7684Redis\u76f8\u5173\u8bbe\u7f6e\u3002", "community_description": "\u8fd9\u4e2a\u6a21\u5757\u8d1f\u8d23\u914d\u7f6eSpring Boot\u5e94\u7528\u4e2d\u7684Redis\u8bbe\u7f6e\uff0c\u5e76\u5b9e\u73b0\u76f8\u5173\u7684Redis\u64cd\u4f5c\u670d\u52a1\u3002"}, {"id": 2, "name": "RedisServiceImpl.java", "full_name": "src/main/java/com/macro/mall/common/service/impl/RedisServiceImpl.java", "type": "file", "community_id": 1, "color": "#377EB8", "degree": 46, "radius": 20.346989949375804, "description": "\u8be5\u6587\u4ef6\u5b9e\u73b0\u4e86Redis\u64cd\u4f5c\u670d\u52a1\u3002", "community_description": "\u8fd9\u4e2a\u6a21\u5757\u8d1f\u8d23\u914d\u7f6eSpring Boot\u5e94\u7528\u4e2d\u7684Redis\u8bbe\u7f6e\uff0c\u5e76\u5b9e\u73b0\u76f8\u5173\u7684Redis\u64cd\u4f5c\u670d\u52a1\u3002"}, {"id": 3, "name": "RedisService.java", "full_name": "src/main/java/com/macro/mall/common/service/RedisService.java", "type": "file", "community_id": 1, "color": "#377EB8", "degree": 91, "radius": 28.618176042508367, "description": "\u8be5\u6587\u4ef6\u5b9a\u4e49\u4e86\u4e00\u4e2aRedis\u64cd\u4f5c\u670d\u52a1\u63a5\u53e3\u3002", "community_description": "\u8fd9\u4e2a\u6a21\u5757\u8d1f\u8d23\u914d\u7f6eSpring Boot\u5e94\u7528\u4e2d\u7684Redis\u8bbe\u7f6e\uff0c\u5e76\u5b9e\u73b0\u76f8\u5173\u7684Redis\u64cd\u4f5c\u670d\u52a1\u3002"}, {"id": 4, "name": "CommonPage.java", "full_name": "src/main/java/com/macro/mall/common/api/CommonPage.java", "type": "file", "community_id": 3, "color": "#4DAF4A", "degree": 18, "radius": 12.727922061357855, "description": "\u8be5\u6587\u4ef6\u5b9a\u4e49\u4e86\u4e00\u4e2a\u901a\u7528\u5206\u9875\u6570\u636e\u5c01\u88c5\u7c7b\uff0c\u7528\u4e8e\u5904\u7406\u4e0d\u540c\u5206\u9875\u65b9\u5f0f\u7684\u6570\u636e\u3002", "community_description": "\u8fd9\u4e2a\u6a21\u5757\u7528\u4e8e\u5b9a\u4e49\u4e00\u4e2a\u901a\u7528\u5206\u9875\u6570\u636e\u5c01\u88c5\u7c7b\uff0c\u5904\u7406\u4e0d\u540c\u7684\u5206\u9875\u9700\u6c42\u3002"}, {"id": 5, "name": "CommonResult.java", "full_name": "src/main/java/com/macro/mall/common/api/CommonResult.java", "type": "file", "community_id": 4, "color": "#984EA3", "degree": 16, "radius": 12.0, "description": "", "community_description": ""}, {"id": 6, "name": "GlobalExceptionHandler.java", "full_name": "src/main/java/com/macro/mall/common/exception/GlobalExceptionHandler.java", "type": "file", "community_id": 4, "color": "#984EA3", "degree": 6, "radius": 8, "description": "", "community_description": ""}, {"id": 7, "name": "IErrorCode.java", "full_name": "src/main/java/com/macro/mall/common/api/IErrorCode.java", "type": "file", "community_id": 4, "color": "#984EA3", "degree": 15, "radius": 11.618950038622252, "description": "", "community_description": ""}, {"id": 8, "name": "ResultCode.java", "full_name": "src/main/java/com/macro/mall/common/api/ResultCode.java", "type": "file", "community_id": 4, "color": "#984EA3", "degree": 7, "radius": 8, "description": "", "community_description": ""}, {"id": 9, "name": "BaseSwaggerConfig.java", "full_name": "src/main/java/com/macro/mall/common/config/BaseSwaggerConfig.java", "type": "file", "community_id": 5, "color": "#FF7F00", "degree": 18, "radius": 12.727922061357855, "description": "\u8be5\u6587\u4ef6\u5b9a\u4e49\u4e86Swagger\u7684\u57fa\u7840\u914d\u7f6e\u7c7b\uff0c\u5e76\u63d0\u4f9b\u4e86\u81ea\u5b9a\u4e49Swagger\u914d\u7f6e\u7684\u65b9\u6cd5\u3002", "community_description": "\u8fd9\u4e2a\u6a21\u5757\u7528\u4e8e\u5b9a\u4e49Swagger\u7684\u57fa\u672c\u914d\u7f6e\u5e76\u63d0\u4f9b\u5b9a\u5236\u5316\u914d\u7f6e\u65b9\u6cd5\u3002"}, {"id": 10, "name": "ApiException.java", "full_name": "src/main/java/com/macro/mall/common/exception/ApiException.java", "type": "file", "community_id": 4, "color": "#984EA3", "degree": 5, "radius": 8, "description": "", "community_description": ""}, {"id": 12, "name": "SwaggerProperties.java", "full_name": "src/main/java/com/macro/mall/common/domain/SwaggerProperties.java", "type": "file", "community_id": 2, "color": "#FFFF33", "degree": 2, "radius": 8, "description": "\u8be5\u6587\u4ef6\u5b9a\u4e49\u4e86Swagger\u7684\u81ea\u5b9a\u4e49\u914d\u7f6e\u7c7b\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5b9a\u4e49Swagger\u7684\u81ea\u5b9a\u4e49\u914d\u7f6e\u3002"}, {"id": 13, "name": "WebLog.java", "full_name": "src/main/java/com/macro/mall/common/domain/WebLog.java", "type": "file", "community_id": 0, "color": "#E41A1C", "degree": 3, "radius": 8, "description": "\u6b64\u6587\u4ef6\u5b9a\u4e49\u4e86\u4e00\u4e2a\u7528\u4e8e\u5c01\u88c5Web\u8bf7\u6c42\u65e5\u5fd7\u4fe1\u606f\u7684Java\u7c7b\u3002", "community_description": "\u8fd9\u4e2a\u6a21\u5757\u63d0\u4f9b\u4e86\u8bb0\u5f55\u548c\u5c01\u88c5Web\u8bf7\u6c42\u65e5\u5fd7\u7684\u529f\u80fd\uff0c\u5e76\u5305\u542b\u83b7\u53d6\u8bf7\u6c42IP\u5730\u5740\u7684\u5de5\u5177\u65b9\u6cd5\u3002"}], "links": [{"source": 0, "target": 0, "weight": 1.4142135623730951, "idents": ["getParameter"]}, {"source": 0, "target": 13, "weight": 1.0, "idents": ["WebLog"]}, {"source": 0, "target": 2, "weight": 1.0, "idents": ["get"]}, {"source": 0, "target": 3, "weight": 1.0, "idents": ["get"]}, {"source": 1, "target": 2, "weight": 1.0, "idents": ["RedisServiceImpl"]}, {"source": 1, "target": 1, "weight": 1.0, "idents": ["redisSerializer"]}, {"source": 2, "target": 2, "weight": 7.692130429902463, "idents": ["expire", "get", "hasKey", "getExpire", "set"]}, {"source": 2, "target": 3, "weight": 7.13270592508145, "idents": ["expire", "get", "hasKey", "RedisService", "getExpire", "set"]}, {"source": 3, "target": 2, "weight": 29.899494936611667, "idents": ["expire", "lRange", "hGet", "hSet", "hGetAll", "sMembers", "lPushAll", "hIncr", "hasKey", "hSetAll", "sIsMember", "set", "decr", "lSize", "lPush", "sSize", "getExpire", "sRemove", "lRemove", "hHasKey", "get", "incr", "hDel", "del", "hDecr", "sAdd", "lIndex"]}, {"source": 3, "target": 3, "weight": 29.324449805019047, "idents": ["expire", "lRange", "hGet", "hSet", "hGetAll", "sMembers", "lPushAll", "hIncr", "hasKey", "hSetAll", "sIsMember", "set", "decr", "lSize", "lPush", "sSize", "RedisService", "getExpire", "sRemove", "lRemove", "hHasKey", "get", "incr", "hDel", "del", "hDecr", "sAdd", "lIndex"]}, {"source": 4, "target": 4, "weight": 11.071067811865476, "idents": ["getList", "getPageNum", "setTotal", "getTotal", "setPageNum", "getPageSize", "setList", "setTotalPage", "setPageSize"]}, {"source": 5, "target": 5, "weight": 4.5102199552536195, "idents": ["getMessage", "getCode", "failed"]}, {"source": 5, "target": 8, "weight": 4.82842712474619, "idents": ["getMessage", "getCode"]}, {"source": 5, "target": 7, "weight": 2.4860466696537307, "idents": ["getMessage", "getCode"]}, {"source": 6, "target": 5, "weight": 4.335471484944693, "idents": ["getMessage", "validateFailed", "failed"]}, {"source": 6, "target": 10, "weight": 1.4142135623730951, "idents": ["getErrorCode"]}, {"source": 6, "target": 8, "weight": 1.4142135623730951, "idents": ["getMessage"]}, {"source": 6, "target": 7, "weight": 1.0905077326652577, "idents": ["getMessage"]}, {"source": 7, "target": 7, "weight": 3.0, "idents": ["IErrorCode", "getMessage", "getCode"]}, {"source": 7, "target": 8, "weight": 2.0, "idents": ["getMessage", "getCode"]}, {"source": 7, "target": 5, "weight": 2.0, "idents": ["getMessage", "getCode"]}, {"source": 8, "target": 7, "weight": 1.0, "idents": ["IErrorCode"]}, {"source": 9, "target": 9, "weight": 9.242640687119284, "idents": ["getContextByPath", "securitySchemes", "getHandlerMappings", "apiInfo", "defaultAuth", "swaggerProperties", "securityContexts", "customizeSpringfoxHandlerMappings"]}, {"source": 9, "target": 2, "weight": 1.0, "idents": ["get"]}, {"source": 9, "target": 3, "weight": 1.0, "idents": ["get"]}, {"source": 10, "target": 8, "weight": 1.0, "idents": ["getMessage"]}, {"source": 10, "target": 5, "weight": 1.0, "idents": ["getMessage"]}, {"source": 10, "target": 7, "weight": 1.0, "idents": ["getMessage"]}, {"source": 12, "target": 12, "weight": 1.0, "idents": ["SwaggerProperties"]}, {"source": 13, "target": 13, "weight": 1.0, "idents": ["WebLog"]}]};
+        
+        /* 创建SVG */
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const svg = d3.select("#graph")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+            
+        /* 创建缩放和平移行为 */
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 4])
+            .on("zoom", (event) => {
+                container.attr("transform", event.transform);
+            });
+            
+        svg.call(zoom);
+        
+        const container = svg.append("g");
+        
+        /* 创建力导向图布局 */
+        const simulation = d3.forceSimulation(data.nodes)
+            .force("link", d3.forceLink(data.links)
+                .id(d => d.id)
+                .distance(d => 50 + Math.sqrt(d.source.degree + d.target.degree) * 3))  /* 增加基础距离 */
+            .force("charge", d3.forceManyBody()
+                .strength(d => -150 - d.degree * 3)  /* 增加斥力 */
+                .distanceMin(20)  /* 增加最小距离 */
+                .distanceMax(300))  /* 增加最大距离 */
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("x", d3.forceX(width / 2).strength(0.05))  /* 减小水平力 */
+            .force("y", d3.forceY(height / 2).strength(0.05))  /* 减小垂直力 */
+            .force("collide", d3.forceCollide()
+                .radius(d => d.radius * 2)  /* 增加碰撞半径 */
+                .strength(1)  /* 最大碰撞力 */
+                .iterations(3));  /* 增加迭代次数 */
+            
+        /* 绘制连接线 */
+        const link = container.append("g")
+            .selectAll("line")
+            .data(data.links)
+            .join("line")
+            .attr("class", "link")
+            .attr("stroke-width", d => Math.sqrt(d.weight));
+            
+        /* 创建节点组 */
+        const node = container.append("g")
+            .selectAll(".node")
+            .data(data.nodes)
+            .join("g")
+            .attr("class", "node")
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+                
+        /* 添加节点圆圈 */
+        node.append("circle")
+            .attr("r", d => d.radius)
+            .attr("fill", d => d.color)
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 1.5);
+            
+        /* 添加节点标签 */
+        node.append("text")
+            .text(d => d.name)
+            .attr("dy", d => d.radius * 2.5 + 5)  /* 增加标签与节点的距离 */
+            .attr("text-anchor", "middle")
+            .style("font-size", d => Math.max(10, Math.min(d.radius * 0.8, 14)) + "px")
+            .each(function(d) {  /* 检测并避免标签重叠 */
+                const bbox = this.getBBox();
+                d.labelHeight = bbox.height;
+                d.labelWidth = bbox.width;
+            });
+            
+        /* 设置初始缩放以适应屏幕 */
+        const bounds = container.node().getBBox();
+        const padding = 50;  /* 添加边距 */
+        const scale = Math.min(
+            (width - padding * 2) / bounds.width,
+            (height - padding * 2) / bounds.height
+        ) * 0.95;  /* 留出更多边距 */
+        
+        /* 计算平移距离，确保图形居中 */
+        const tx = (width - bounds.width * scale) / 2 - bounds.x * scale;
+        const ty = (height - bounds.height * scale) / 2 - bounds.y * scale;
+        
+        /* 立即应用变换，不使用动画 */
+        container.attr("transform", `translate(${tx},${ty})scale(${scale})`);
+        
+        /* 更新力导向图的alpha值以确保布局稳定 */
+        simulation.alpha(0.3).restart();
+        
+        /* 在tick事件中处理标签位置，避免重叠 */
+        simulation.on("tick", () => {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+                
+            node.attr("transform", d => `translate(${d.x},${d.y})`);
+            
+            /* 标签碰撞检测和调整 */
+            const labels = node.selectAll("text");
+            labels.each(function(d1) {
+                labels.each(function(d2) {
+                    if (d1.id !== d2.id) {
+                        const dx = d1.x - d2.x;
+                        const dy = d1.y - d2.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const minDist = (d1.labelHeight + d2.labelHeight) / 2 + 10;
+                        
+                        if (dist < minDist) {
+                            const angle = Math.atan2(dy, dx);
+                            const moveDistance = (minDist - dist) / 2;
+                            
+                            d1.y += Math.sin(angle) * moveDistance;
+                            d2.y -= Math.sin(angle) * moveDistance;
+                        }
+                    }
+                });
+            });
+        });
+        
+        /* 添加提示框 */
+        const tooltip = d3.select("body")
+            .append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+            
+        /* 节���交互 */
+        node.on("mouseover", (event, d) => {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                    
+                let tooltipContent = `<h4>${d.name}</h4>`;
+                tooltipContent += `<div class="path"><strong>Full path:</strong><br>${d.full_name}</div>`;
+                tooltipContent += `<strong>Degree:</strong> ${d.degree}<br>`;
+                
+                if (d.community_id !== null) {
+                    tooltipContent += `<div class="description"><strong>Community:</strong><br>${d.community_description}</div>`;
+                }
+                
+                if (d.description) {
+                    tooltipContent += `<div class="description"><strong>File:</strong><br>${d.description}</div>`;
+                }
+                
+                tooltip.html(tooltipContent)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", () => {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+            
+        /* 拖拽函数 */
+        function dragstarted(event) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+        }
+        
+        function dragged(event) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+        }
+        
+        function dragended(event) {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+        }
+    </script>
+</body>
+</html>

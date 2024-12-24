@@ -460,7 +460,7 @@ class RepoMap:
         if communities:
             community_infos = generate_community_descriptions(G, self.root, communities, lang='zh')
             # 生成带社区信息的可视化
-            save_d3_visualization(self.root, G, communities, os.path.join(self.root, "repo_overview_with_communities.html"))
+            save_d3_visualization(self.root, G, community_infos, os.path.join(self.root, "repo_overview_with_communities.html"))
             
             # 查看结果
             if self.verbose and community_infos:
