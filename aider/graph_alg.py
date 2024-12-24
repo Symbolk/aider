@@ -40,7 +40,7 @@ def to_mermaid(G, max_edges=100):
         if edge_id in processed_edges:
             continue
             
-        # 获取这对所有边的权重总和
+        # 获取这对有边的权重总和
         weight = sum(d.get('weight', 1) for _, _, d in G.edges(data=True) if (_, _) == edge_id)
         
         # 简化节点标签
@@ -184,7 +184,7 @@ def detect_communities(G):
         # 将MultiDiGraph转换为无向图以便进行社区检测
         undirected_G = G.to_undirected()
         
-        # 如果图为空或只��一个节点，返回None
+        # 如果���为空或只有一个节点，返回None
         if len(undirected_G.nodes()) <= 1:
             return None
             
@@ -216,7 +216,7 @@ def topological_sort_paths(G, source=None, target=None, max_paths=100):
     import networkx as nx
     
     def _find_sccs(G):
-        """使用Tarjan算法找出图中的强连通分量"""
+        """使用Tarjan算法找出图中的强连通���量"""
         sccs = list(nx.strongly_connected_components(G))
         scc_mapping = {}  # 原始节点到SCC ID的映射
         scc_nodes = {}    # SCC ID到原始节点集合的映射
@@ -254,7 +254,7 @@ def topological_sort_paths(G, source=None, target=None, max_paths=100):
         if all_paths is None:
             all_paths = []
             
-        # 如果已经找到足够多的路径，提前返回
+        # 如果已经找到足够多的路径，提前��回
         if len(all_paths) >= max_paths:
             return all_paths
             
@@ -288,7 +288,7 @@ def topological_sort_paths(G, source=None, target=None, max_paths=100):
         return all_paths
         
     def _expand_path(path, scc_nodes):
-        """展开缩点后的路径，将每个SCC节��替换为其包含的原始节点"""
+        """展开缩点后的路径，���每个SCC节点替换为其包含的原始节点"""
         expanded_path = []
         for node in path:
             if node.startswith('scc_'):
@@ -416,22 +416,32 @@ def save_d3_visualization(repo_root, G, communities=None, output_path=None):
         ]
         for i, community_id in enumerate(communities.keys()):
             community_colors[community_id] = colors[i % len(colors)]
-            # 获取社区描��（如果有的话）
-            if hasattr(communities[community_id], 'description'):
-                community_descriptions[community_id] = communities[community_id].description
-            else:
+            # 获取社区描述
+            community_obj = communities[community_id]
+            if isinstance(community_obj, set):
                 community_descriptions[community_id] = f"Community {community_id}"
+            else:  # CommunityInfo object
+                community_descriptions[community_id] = community_obj.description or f"Community {community_id}"
             
     # 添加文件节点
     for i, node in enumerate(G.nodes()):
         if node in significant_nodes:
-            # 获取文件描述（如果有的话）
+            # 获取文件描述
             file_description = None
             if communities:
-                for comm_id, comm_nodes in communities.items():
-                    if node in comm_nodes and hasattr(communities[comm_id], 'file_descriptions'):
-                        file_description = communities[comm_id].file_descriptions.get(node)
-                        break
+                for comm_id, comm_obj in communities.items():
+                    if isinstance(comm_obj, set):
+                        if node in comm_obj:
+                            file_description = G.nodes[node].get('description', '')
+                            break
+                    else:  # CommunityInfo object
+                        if node in comm_obj.files:
+                            file_description = comm_obj.file_descriptions.get(node, '')
+                            break
+
+            # 如果社区中没有文件描述，尝试从图节点属性中获取
+            if not file_description:
+                file_description = G.nodes[node].get('description', '')
 
             node_data = {
                 "id": i,
@@ -442,18 +452,26 @@ def save_d3_visualization(repo_root, G, communities=None, output_path=None):
                 "color": "#666666",
                 "degree": node_degrees[node],
                 "radius": max(8, math.sqrt(node_degrees[node]) * 3),
-                "description": file_description or G.nodes[node].get('description', ''),
+                "description": file_description,
                 "community_description": ""
             }
             
             # 如果节点属于某个社区，添加社区信息
             if communities:
-                for comm_id, comm_nodes in communities.items():
-                    if node in comm_nodes:
-                        node_data["community_id"] = comm_id
-                        node_data["color"] = community_colors[comm_id]
-                        node_data["community_description"] = community_descriptions[comm_id]
-                        break
+                for comm_id, comm_obj in communities.items():
+                    if isinstance(comm_obj, set):
+                        if node in comm_obj:
+                            node_data["community_id"] = comm_id
+                            node_data["color"] = community_colors[comm_id]
+                            node_data["community_description"] = community_descriptions[comm_id]
+                            break
+                    else:  # CommunityInfo object
+                        if node in comm_obj.files:
+                            node_data["community_id"] = comm_id
+                            node_data["color"] = community_colors[comm_id]
+                            node_data["community_description"] = comm_obj.description
+                            node_data["description"] = comm_obj.file_descriptions.get(node, '')
+                            break
                         
             nodes.append(node_data)
             node_id_map[node] = i
@@ -577,7 +595,7 @@ def save_d3_visualization(repo_root, G, communities=None, output_path=None):
             .force("charge", d3.forceManyBody()
                 .strength(d => -150 - d.degree * 3)  /* 增加斥力 */
                 .distanceMin(20)  /* 增加最小距离 */
-                .distanceMax(300))  /* ��加最大距离 */
+                .distanceMax(300))  /* 增加最大距离 */
             .force("center", d3.forceCenter(width / 2, height / 2))
             .force("x", d3.forceX(width / 2).strength(0.05))  /* 减小水平力 */
             .force("y", d3.forceY(height / 2).strength(0.05))  /* 减小垂直力 */
@@ -680,7 +698,7 @@ def save_d3_visualization(repo_root, G, communities=None, output_path=None):
             .attr("class", "tooltip")
             .style("opacity", 0);
             
-        /* 节点交互 */
+        /* 节���交互 */
         node.on("mouseover", (event, d) => {
                 tooltip.transition()
                     .duration(200)
@@ -691,11 +709,11 @@ def save_d3_visualization(repo_root, G, communities=None, output_path=None):
                 tooltipContent += `<strong>Degree:</strong> ${d.degree}<br>`;
                 
                 if (d.community_id !== null) {
-                    tooltipContent += `<strong>Community:</strong> ${d.community_description}<br>`;
+                    tooltipContent += `<div class="description"><strong>Community:</strong><br>${d.community_description}</div>`;
                 }
                 
                 if (d.description) {
-                    tooltipContent += `<div class="description"><strong>Description:</strong><br>${d.description}</div>`;
+                    tooltipContent += `<div class="description"><strong>File:</strong><br>${d.description}</div>`;
                 }
                 
                 tooltip.html(tooltipContent)

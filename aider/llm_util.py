@@ -1,4 +1,3 @@
-
 import os
 from litellm import completion
 
@@ -112,10 +111,10 @@ def generate_community_descriptions(G, repo_path, communities, lang='en'):
         
     class CommunityInfo:
         def __init__(self):
-            files = set()  # 社区包含的文件
-            file_descriptions = {}  # 文件的描述，key是文件路径
-            description = ""  # 社区整体描述
-            dependency_paths = []  # 社区内的依赖路径
+            self.files = set()  # 社区包含的文件
+            self.file_descriptions = {}  # 文件的描述，key是文件路径
+            self.description = ""  # 社区整体描述
+            self.dependency_paths = []  # 社区内的依赖路径
             
     # 验证语言参数
     if lang not in ['en', 'zh']:
@@ -162,7 +161,8 @@ def generate_community_descriptions(G, repo_path, communities, lang='en'):
             info.description = ""
 
         community_infos[i] = info
-        
-        print(f"Community {i+1} description: {info.description}")
+
+        if hasattr(info, 'description'):
+            print(f"Community {i+1} description: {info.description}")
             
     return community_infos
