@@ -258,3 +258,4 @@ pip==24.3.1
 
 python-louvain==0.16
 mdutils==1.6.0
+loguru==0.7.3
