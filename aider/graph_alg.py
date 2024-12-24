@@ -591,18 +591,31 @@ def save_d3_visualization(repo_root, G, communities=None, output_path=None):
         const simulation = d3.forceSimulation(data.nodes)
             .force("link", d3.forceLink(data.links)
                 .id(d => d.id)
-                .distance(d => 50 + Math.sqrt(d.source.degree + d.target.degree) * 3))  /* 增加基础距离 */
+                .distance(d => {
+                    const nodeCount = data.nodes.length;
+                    const linkCount = data.links.length;
+                    const baseDist = 50;
+                    const nodeRatio = nodeCount / 100;  // 每100个节点增加一倍基础距离
+                    const linkRatio = linkCount / 500;  // 每500条边增加一倍基础距离
+                    return baseDist * (1 + nodeRatio) * (1 + linkRatio);
+                })
+                .strength(0.2))  /* 减小link force的strength */
             .force("charge", d3.forceManyBody()
-                .strength(d => -150 - d.degree * 3)  /* 增加斥力 */
-                .distanceMin(20)  /* 增加最小距离 */
-                .distanceMax(300))  /* 增加最大距离 */
+                .strength(d => {
+                    const nodeCount = data.nodes.length;
+                    const baseCharge = -100;
+                    const chargeRatio = nodeCount / 100;  // 每100个节点增加一倍斥力
+                    return baseCharge * (1 + chargeRatio);
+                }))
             .force("center", d3.forceCenter(width / 2, height / 2))
-            .force("x", d3.forceX(width / 2).strength(0.05))  /* 减小水平力 */
-            .force("y", d3.forceY(height / 2).strength(0.05))  /* 减小垂直力 */
+            .force("x", d3.forceX(width / 2).strength(0.05))
+            .force("y", d3.forceY(height / 2).strength(0.05))
             .force("collide", d3.forceCollide()
-                .radius(d => d.radius * 2)  /* 增加碰撞半径 */
-                .strength(1)  /* 最大碰撞力 */
-                .iterations(3));  /* 增加迭代次数 */
+                .radius(d => d.radius * 2.5)  /* 增加碰撞半径 */
+                .strength(1)
+                .iterations(3))
+            .alphaDecay(0.01)  /* 减缓alpha衰减速度 */
+            .velocityDecay(0.5);  /* 减缓速度衰减 */
             
         /* 绘制连接线 */
         const link = container.append("g")
@@ -636,7 +649,7 @@ def save_d3_visualization(repo_root, G, communities=None, output_path=None):
             .attr("dy", d => d.radius * 2.5 + 5)  /* 增加标签与节点的距离 */
             .attr("text-anchor", "middle")
             .style("font-size", d => Math.max(10, Math.min(d.radius * 0.8, 14)) + "px")
-            .each(function(d) {  /* 检测并避免标签重叠 */
+            .each(function(d) {  /* 检测并避��标签重叠 */
                 const bbox = this.getBBox();
                 d.labelHeight = bbox.height;
                 d.labelWidth = bbox.width;
@@ -698,7 +711,7 @@ def save_d3_visualization(repo_root, G, communities=None, output_path=None):
             .attr("class", "tooltip")
             .style("opacity", 0);
             
-        /* 节���交互 */
+        /* 节点交互 */
         node.on("mouseover", (event, d) => {
                 tooltip.transition()
                     .duration(200)

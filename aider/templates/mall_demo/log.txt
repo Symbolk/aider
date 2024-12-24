@@ -1,0 +1,121 @@
+/Users/symbolk/miniconda3/envs/aider/bin/python /Users/symbolk/coding/ai/aider/aider/repomap.py /Users/symbolk/coding/demo/mall/mall-demo
+Warning: Input is not a terminal (fd=0).
+RepoMap initialized with map_mul_no_files: 8
+Processing
+/Users/symbolk/coding/demo/mall/mall-demo/src/main/java/com/macro/mall/demo/Mall
+DemoApplication.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-demo/src/main/java/com/macro/mall/demo/bo/A
+dminUserDetails.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-demo/src/main/java/com/macro/mall/demo/conf
+ig/MyBatisConfig.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-demo/src/main/java/com/macro/mall/demo/conf
+ig/RestTemplateConfig.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-demo/src/main/java/com/macro/mall/demo/conf
+ig/SecurityConfig.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-demo/src/main/java/com/macro/mall/demo/conf
+ig/SwaggerConfig.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-demo/src/main/java/com/macro/mall/demo/cont
+roller/DemoController.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-demo/src/main/java/com/macro/mall/demo/cont
+roller/RestTemplateDemoController.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-demo/src/main/java/com/macro/mall/demo/dto/
+PmsBrandDto.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-demo/src/main/java/com/macro/mall/demo/serv
+ice/DemoService.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-demo/src/main/java/com/macro/mall/demo/serv
+ice/impl/DemoServiceImpl.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-demo/src/main/java/com/macro/mall/demo/vali
+dator/FlagValidator.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-demo/src/main/java/com/macro/mall/demo/vali
+dator/FlagValidatorClass.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-demo/src/test/java/com/macro/mall/demo/Mall
+DemoApplicationTests.java
+D3.js visualization saved to: /Users/symbolk/coding/demo/mall/mall-demo/repo_overview.html
+Processing community 1...
+2024-12-24 16:19:52.400 | INFO     | aider.graph_alg:topological_sort_paths:305 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-24 16:19:52.400 | INFO     | aider.graph_alg:topological_sort_paths:361 - Found 1 topological sort paths
+2024-12-24 16:19:52.400 | INFO     | aider.graph_alg:topological_sort_paths:365 - Detected 1 strongly connected components
+Community 1 description: 这个配置文件用于设置MyBatis的相关参数。
+Processing community 2...
+2024-12-24 16:19:56.228 | INFO     | aider.graph_alg:topological_sort_paths:305 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-24 16:19:56.228 | INFO     | aider.graph_alg:topological_sort_paths:361 - Found 1 topological sort paths
+2024-12-24 16:19:56.228 | INFO     | aider.graph_alg:topological_sort_paths:365 - Detected 2 strongly connected components
+Community 2 description: 这模块用于配置SpringSecurity的安全规则，并实现自定义用户DetailsService，包括定义AdminUserDetails类。
+Processing community 3...
+2024-12-24 16:20:00.600 | INFO     | aider.graph_alg:topological_sort_paths:305 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-24 16:20:00.600 | INFO     | aider.graph_alg:topological_sort_paths:361 - Found 1 topological sort paths
+2024-12-24 16:20:00.600 | INFO     | aider.graph_alg:topological_sort_paths:365 - Detected 2 strongly connected components
+Community 3 description: 这个模块主要用于测试Spring Boot应用的日志记录功能，并以JSON格式输出产品日志；同时定义了用于传递品牌信息的数据传输对象（DTO）。
+Processing community 5...
+2024-12-24 16:20:05.074 | INFO     | aider.graph_alg:topological_sort_paths:305 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-24 16:20:05.074 | INFO     | aider.graph_alg:topological_sort_paths:361 - Found 1 topological sort paths
+2024-12-24 16:20:05.074 | INFO     | aider.graph_alg:topological_sort_paths:365 - Detected 1 strongly connected components
+Community 5 description: 这个模块提供了品牌管理的API接口及其实现的业务逻辑。
+Processing community 4...
+2024-12-24 16:20:10.530 | INFO     | aider.graph_alg:topological_sort_paths:305 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-24 16:20:10.531 | INFO     | aider.graph_alg:topological_sort_paths:361 - Found 1 topological sort paths
+2024-12-24 16:20:10.531 | INFO     | aider.graph_alg:topological_sort_paths:365 - Detected 1 strongly connected components
+Community 4 description: 该模块定义了一个Spring Controller类，用于演示如何使用RestTemplate进行HTTP请求。
+D3.js visualization saved to: /Users/symbolk/coding/demo/mall/mall-demo/repo_overview_with_communities.html
+
+Community 0:
+Description: 这个配置文件用于设置MyBatis的相关参数。
+Files:
+- src/main/java/com/macro/mall/demo/config/MyBatisConfig.java:
+该配置文件用于MyBatis的相关设置。
+
+Community 1:
+Description:
+这模块用于配置SpringSecurity的安全规则，并实现自定义用户DetailsService，包括定义
+AdminUserDetails类。
+Files:
+- src/main/java/com/macro/mall/demo/bo/AdminUserDetails.java:
+该文件定义了一个实现 UserDetails 接口的类 AdminUserDetails，用于配置
+SpringSecurity 并提供自定义用户详情。
+- src/main/java/com/macro/mall/demo/config/SecurityConfig.java:
+该文件配置了SpringSecurity的安全规则，并实现了自定义用户DetailsService。
+
+Community 2:
+Description: 这个模块主要用于测试Spring
+Boot应用的日志记录功能，并以JSON格式输出产品日志；同时定义了用于传递品牌信息的数
+据传输对象（DTO）。
+Files:
+- src/test/java/com/macro/mall/demo/MallDemoApplicationTests.java:
+该文件用于测试Spring
+Boot应用的日志记录功能，并将产品对象以JSON格式输出到日志中。
+- src/main/java/com/macro/mall/demo/dto/PmsBrandDto.java:
+此文件定义了一个用于品牌信息传递的数据传输对象（DTO），包含品牌名称、首字母、排
+序字段等属性。
+
+Community 4:
+Description: 这个模块提供了品牌管理的API接口及其实现的业务逻辑。
+Files:
+- src/main/java/com/macro/mall/demo/service/impl/DemoServiceImpl.java:
+此文件实现了品牌管理的相关业务逻辑。
+- src/main/java/com/macro/mall/demo/controller/DemoController.java:
+此文件定义了Brand管理的API接口。
+- src/main/java/com/macro/mall/demo/service/DemoService.java:
+该文件定义了一个名为DemoService的服务接口，用于品牌管理的相关操作。
+
+Community 3:
+Description: 该模块定义了一个Spring
+Controller类，用于演示如何使用RestTemplate进行HTTP请求。
+Files:
+- src/main/java/com/macro/mall/demo/controller/RestTemplateDemoController.java:
+该文件定义了一个Spring Controller类，用于演示RestTemplate的用法。
+Build 137 lines in repo map
+
+Process finished with exit code 0

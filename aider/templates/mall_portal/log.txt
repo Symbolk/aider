@@ -1,0 +1,538 @@
+/Users/symbolk/miniconda3/envs/aider/bin/python /Users/symbolk/coding/ai/aider/aider/repomap.py /Users/symbolk/coding/demo/mall/mall-portal
+Warning: Input is not a terminal (fd=0).
+RepoMap initialized with map_mul_no_files: 8
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+MallPortalApplication.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+component/CancelOrderReceiver.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+component/CancelOrderSender.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+component/OrderTimeOutCancelTask.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+config/AlipayClientConfig.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+config/AlipayConfig.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+config/GlobalCorsConfig.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+config/JacksonConfig.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+config/MallSecurityConfig.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+config/MyBatisConfig.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+config/RabbitMqConfig.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+config/SpringTaskConfig.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+config/SwaggerConfig.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+controller/AlipayController.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+controller/HomeController.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+controller/MemberAttentionController.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+controller/MemberProductCollectionController.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+controller/MemberReadHistoryController.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+controller/OmsCartItemController.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+controller/OmsPortalOrderController.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+controller/OmsPortalOrderReturnApplyController.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+controller/PmsPortalBrandController.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+controller/PmsPortalProductController.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+controller/UmsMemberController.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+controller/UmsMemberCouponController.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+controller/UmsMemberReceiveAddressController.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+dao/HomeDao.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+dao/PortalOrderDao.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+dao/PortalOrderItemDao.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+dao/PortalProductDao.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+dao/SmsCouponHistoryDao.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/AliPayParam.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/CartProduct.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/CartPromotionItem.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/ConfirmOrderResult.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/FlashPromotionProduct.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/HomeContentResult.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/HomeFlashPromotion.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/MemberBrandAttention.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/MemberDetails.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/MemberProductCollection.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/MemberReadHistory.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/OmsOrderDetail.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/OmsOrderReturnApplyParam.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/OrderParam.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/PmsPortalProductDetail.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/PmsProductCategoryNode.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/PromotionProduct.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/QueueEnum.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+domain/SmsCouponHistoryDetail.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+repository/MemberBrandAttentionRepository.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+repository/MemberProductCollectionRepository.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+repository/MemberReadHistoryRepository.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/AlipayService.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/HomeService.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/MemberAttentionService.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/MemberCollectionService.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/MemberReadHistoryService.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/OmsCartItemService.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/OmsPortalOrderReturnApplyService.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/OmsPortalOrderService.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/OmsPromotionService.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/PmsPortalBrandService.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/PmsPortalProductService.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/UmsMemberCacheService.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/UmsMemberCouponService.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/UmsMemberReceiveAddressService.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/UmsMemberService.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/impl/AlipayServiceImpl.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/impl/HomeServiceImpl.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/impl/MemberAttentionServiceImpl.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/impl/MemberCollectionServiceImpl.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/impl/MemberReadHistoryServiceImpl.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/impl/OmsCartItemServiceImpl.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/impl/OmsPortalOrderReturnApplyServiceImpl.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/impl/OmsPortalOrderServiceImpl.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/impl/OmsPromotionServiceImpl.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/impl/PmsPortalBrandServiceImpl.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/impl/PmsPortalProductServiceImpl.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/impl/UmsMemberCacheServiceImpl.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/impl/UmsMemberCouponServiceImpl.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/impl/UmsMemberReceiveAddressServiceImpl.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+service/impl/UmsMemberServiceImpl.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/main/java/com/macro/mall/portal/
+util/DateUtil.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/test/java/com/macro/mall/portal/
+MallPortalApplicationTests.java
+Processing
+/Users/symbolk/coding/demo/mall/mall-portal/src/test/java/com/macro/mall/portal/
+PortalProductDaoTests.java
+D3.js visualization saved to: /Users/symbolk/coding/demo/mall/mall-portal/repo_overview.html
+Processing community 1...
+2024-12-24 16:25:31.152 | INFO     | aider.graph_alg:topological_sort_paths:305 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-24 16:25:31.153 | INFO     | aider.graph_alg:topological_sort_paths:361 - Found 3 topological sort paths
+2024-12-24 16:25:31.153 | INFO     | aider.graph_alg:topological_sort_paths:365 - Detected 7 strongly connected components
+Community 1 description: 该模块主要用于处理取消订单消息、释放库存以及订单相关操作。
+Processing community 2...
+2024-12-24 16:26:18.278 | INFO     | aider.graph_alg:topological_sort_paths:305 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-24 16:26:18.280 | INFO     | aider.graph_alg:topological_sort_paths:361 - Found 4 topological sort paths
+2024-12-24 16:26:18.280 | INFO     | aider.graph_alg:topological_sort_paths:365 - Detected 6 strongly connected components
+Community 2 description: 这个模块主要用于定义和实现会员相关数据（如商品收藏、品牌关注、阅读历史等）的服务接口及部分业务逻辑。
+Processing community 3...
+Community 3 description:
+Processing community 4...
+2024-12-24 16:27:46.427 | INFO     | aider.graph_alg:topological_sort_paths:305 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-24 16:27:46.430 | INFO     | aider.graph_alg:topological_sort_paths:367 - No valid topological sort paths found
+2024-12-24 16:27:46.430 | INFO     | aider.graph_alg:topological_sort_paths:305 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-24 16:27:46.430 | INFO     | aider.graph_alg:topological_sort_paths:361 - Found 1 topological sort paths
+2024-12-24 16:27:46.431 | INFO     | aider.graph_alg:topological_sort_paths:365 - Detected 2 strongly connected components
+Community 4 description: 这个模块定义了支付宝支付相关的控制器、服务实现、服务接口以及支付请求参数类。
+Processing community 5...
+2024-12-24 16:27:55.301 | INFO     | aider.graph_alg:topological_sort_paths:305 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-24 16:27:55.302 | INFO     | aider.graph_alg:topological_sort_paths:361 - Found 2 topological sort paths
+2024-12-24 16:27:55.302 | INFO     | aider.graph_alg:topological_sort_paths:365 - Detected 4 strongly connected components
+Community 5 description: 这个模块主要用于管理首页内容，包括封装返回信息、定义服务接口及实现、控制层操作以及相关数据访问对象，并提供了获取广告、秒杀活动、推荐商品等数据的方法。
+Processing community 6...
+2024-12-24 16:28:19.305 | INFO     | aider.graph_alg:topological_sort_paths:305 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-24 16:28:19.305 | INFO     | aider.graph_alg:topological_sort_paths:361 - Found 1 topological sort paths
+2024-12-24 16:28:19.305 | INFO     | aider.graph_alg:topological_sort_paths:365 - Detected 4 strongly connected components
+2024-12-24 16:28:31.815 | INFO     | aider.graph_alg:topological_sort_paths:305 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-24 16:28:31.817 | INFO     | aider.graph_alg:topological_sort_paths:361 - Found 2 topological sort paths
+2024-12-24 16:28:31.817 | INFO     | aider.graph_alg:topological_sort_paths:365 - Detected 4 strongly connected components
+Community 6 description: 这些文件共同实现了基于Spring Security的会员管理系统，包括用户认证、服务接口、缓存管理及UserDetailsService自定义实现。
+Processing community 8...
+Community 8 description: 这些文件定义了前台商品管理相关的控制器、服务接口及数据模型。
+Processing community 9...
+2024-12-24 16:29:05.183 | INFO     | aider.graph_alg:topological_sort_paths:305 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-24 16:29:05.184 | INFO     | aider.graph_alg:topological_sort_paths:361 - Found 1 topological sort paths
+2024-12-24 16:29:05.184 | INFO     | aider.graph_alg:topological_sort_paths:365 - Detected 1 strongly connected components
+Community 9 description: 该模块用于测试Spring Boot应用的上下文加载。
+Processing community 10...
+2024-12-24 16:29:06.345 | INFO     | aider.graph_alg:topological_sort_paths:305 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-24 16:29:06.345 | INFO     | aider.graph_alg:topological_sort_paths:361 - Found 1 topological sort paths
+2024-12-24 16:29:06.345 | INFO     | aider.graph_alg:topological_sort_paths:365 - Detected 1 strongly connected components
+Community 10 description: 这个模块用于配置Spring的任务调度功能。
+Processing community 11...
+2024-12-24 16:29:07.365 | INFO     | aider.graph_alg:topological_sort_paths:305 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-24 16:29:07.366 | INFO     | aider.graph_alg:topological_sort_paths:361 - Found 1 topological sort paths
+2024-12-24 16:29:07.366 | INFO     | aider.graph_alg:topological_sort_paths:365 - Detected 1 strongly connected components
+Community 11 description: 这个模块用于配置支付宝支付相关的参数。
+Processing community 7...
+2024-12-24 16:29:09.073 | INFO     | aider.graph_alg:topological_sort_paths:305 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-24 16:29:09.073 | INFO     | aider.graph_alg:topological_sort_paths:361 - Found 1 topological sort paths
+2024-12-24 16:29:09.074 | INFO     | aider.graph_alg:topological_sort_paths:365 - Detected 1 strongly connected components
+Community 7 description: 该配置类启用了MyBatis的相关设置和事务管理，并扫描了指定的Mapper接口。
+D3.js visualization saved to: /Users/symbolk/coding/demo/mall/mall-portal/repo_overview_with_communities.html
+
+Community 0:
+Description: 该模块主要用于处理取消订单消息、释放库存以及订单相关操作。
+Files:
+- src/main/java/com/macro/mall/portal/service/OmsPortalOrderService.java:
+此文件定义了订单管理服务接口及其相关功能，并包含定时任务处理超时订单。
+- src/main/java/com/macro/mall/portal/component/CancelOrderSender.java:
+此文件定义了一个用于发送延迟取消订单消息的组件。
+- src/main/java/com/macro/mall/portal/domain/OrderParam.java:
+此文件定义了一个用于生成订单参数的类。
+-
+src/main/java/com/macro/mall/portal/service/impl/OmsPortalOrderServiceImpl.java:
+此文件定义了一个每10分钟运行的任务组件，用于处理取消订单消息和释放库存。
+- src/main/java/com/macro/mall/portal/domain/OmsOrderDetail.java:
+此文件定义了包含商品信息的订单详情类。
+- src/main/java/com/macro/mall/portal/controller/UmsMemberController.java:
+此文件定义了会员登录注册、信息获取、密码修改以及token刷新等功能的控制器。
+- src/main/java/com/macro/mall/portal/controller/OmsPortalOrderController.java:
+此文件定义了订单管理Controller接口及相关功能，并包含定时任务处理超时订单。
+- src/main/java/com/macro/mall/portal/dao/PortalOrderDao.java:
+此文件定义了前台订单管理相关的数据访问方法。
+- src/main/java/com/macro/mall/portal/component/CancelOrderReceiver.java:
+该文件定义了一个处理取消订单消息的组件。
+- src/main/java/com/macro/mall/portal/component/OrderTimeOutCancelTask.java:
+此文件定义了一个每10分钟运行的任务组件，用于取消超时订单并释放库存。
+
+Community 1:
+Description:
+这个模块主要用于定义和实现会员相关数据（如商品收藏、品牌关注、阅读历史等）的服务
+接口及部分业务逻辑。
+Files:
+-
+src/main/java/com/macro/mall/portal/repository/MemberBrandAttentionRepository.ja
+va: 此文件定义了会员品牌关注相关的MongoRepository接口及部分业务逻辑。
+- src/main/java/com/macro/mall/portal/domain/OmsOrderReturnApplyParam.java:
+此文件定义了处理前台订单退货申请的请求参数类。
+-
+src/main/java/com/macro/mall/portal/service/impl/OmsPortalOrderReturnApplyServic
+eImpl.java: 此文件定义了处理前台订单退货申请的服务接口。
+-
+src/main/java/com/macro/mall/portal/service/impl/MemberCollectionServiceImpl.jav
+a: 此文件实现了会员商品收藏管理的服务接口。
+- src/main/java/com/macro/mall/portal/service/MemberAttentionService.java:
+此文件定义了会员品牌关注管理的服务接口。
+-
+src/main/java/com/macro/mall/portal/service/OmsPortalOrderReturnApplyService.jav
+a: 此文件定义了处理前台订单退货申请的服务接口。
+-
+src/main/java/com/macro/mall/portal/controller/OmsPortalOrderReturnApplyControll
+er.java: 此文件定义了处理订单退货申请的服务接口。
+- src/main/java/com/macro/mall/portal/service/MemberReadHistoryService.java:
+此文件定义了会员浏览记录、订单退货申请、品牌关注和商品收藏等相关服务接口。
+- src/main/java/com/macro/mall/portal/domain/MemberReadHistory.java:
+此文件定义了一个会员商品浏览历史记录的MongoDB文档实体类。
+- src/main/java/com/macro/mall/portal/controller/MemberAttentionController.java:
+此文件定义了会员品牌关注管理的服务接口。
+- src/main/java/com/macro/mall/portal/service/MemberCollectionService.java:
+此文件定义了会员商品收藏管理的服务接口。
+- src/main/java/com/macro/mall/portal/domain/MemberProductCollection.java:
+此文件定义了会员商品收藏的MongoDB文档结构。
+-
+src/main/java/com/macro/mall/portal/controller/MemberReadHistoryController.java:
+此文件定义了会员商品浏览记录管理的相关服务接口。
+-
+src/main/java/com/macro/mall/portal/service/impl/MemberAttentionServiceImpl.java
+: 此文件实现了一套会员品牌关注相关的服务接口。
+-
+src/main/java/com/macro/mall/portal/service/impl/MemberReadHistoryServiceImpl.ja
+va: 此文件定义了会员商品浏览记录管理的相关服务接口。
+-
+src/main/java/com/macro/mall/portal/repository/MemberProductCollectionRepository
+.java:
+此文件定义了会员相关数据（如商品收藏、品牌关注、阅读历史）的MongoRepository接口
+及部分业务逻辑。
+-
+src/main/java/com/macro/mall/portal/repository/MemberReadHistoryRepository.java:
+此文件定义了会员读取历史相关的MongoRepository接口及部分业务逻辑。
+- src/main/java/com/macro/mall/portal/domain/MemberBrandAttention.java:
+此文件定义了一个表示会员品牌关注的MongoDB文档类。
+
+Community 2:
+Description:
+Files:
+- src/main/java/com/macro/mall/portal/service/impl/OmsPromotionServiceImpl.java:
+- src/main/java/com/macro/mall/portal/service/UmsMemberCouponService.java:
+-
+src/main/java/com/macro/mall/portal/service/impl/UmsMemberReceiveAddressServiceI
+mpl.java:
+- src/main/java/com/macro/mall/portal/service/impl/OmsCartItemServiceImpl.java:
+-
+src/main/java/com/macro/mall/portal/controller/UmsMemberReceiveAddressController
+.java:
+- src/test/java/com/macro/mall/portal/PortalProductDaoTests.java:
+-
+src/main/java/com/macro/mall/portal/service/impl/UmsMemberCouponServiceImpl.java
+:
+- src/main/java/com/macro/mall/portal/controller/UmsMemberCouponController.java:
+- src/main/java/com/macro/mall/portal/domain/CartPromotionItem.java:
+- src/main/java/com/macro/mall/portal/service/OmsCartItemService.java:
+- src/main/java/com/macro/mall/portal/service/OmsPromotionService.java:
+- src/main/java/com/macro/mall/portal/domain/ConfirmOrderResult.java:
+-
+src/main/java/com/macro/mall/portal/service/UmsMemberReceiveAddressService.java:
+- src/main/java/com/macro/mall/portal/controller/OmsCartItemController.java:
+- src/main/java/com/macro/mall/portal/dao/PortalOrderItemDao.java:
+- src/main/java/com/macro/mall/portal/domain/CartProduct.java:
+- src/main/java/com/macro/mall/portal/dao/SmsCouponHistoryDao.java:
+- src/main/java/com/macro/mall/portal/domain/SmsCouponHistoryDetail.java:
+- src/main/java/com/macro/mall/portal/dao/PortalProductDao.java:
+- src/main/java/com/macro/mall/portal/domain/PromotionProduct.java:
+
+Community 3:
+Description:
+这个模块定义了支付宝支付相关的控制器、服务实现、服务接口以及支付请求参数类。
+Files:
+- src/main/java/com/macro/mall/portal/service/impl/AlipayServiceImpl.java:
+该文件定义了处理支付宝支付相关操作的服务实现类。
+- src/main/java/com/macro/mall/portal/domain/AliPayParam.java:
+此文件定义了一个表示支付宝支付请求参数的类。
+- src/main/java/com/macro/mall/portal/controller/AlipayController.java:
+该文件定义了处理支付宝支付相关操作的控制器类。
+- src/main/java/com/macro/mall/portal/service/AlipayService.java:
+此文件定义了支付宝支付相关的服务接口。
+
+Community 4:
+Description:
+这个模块主要用于管理首页内容，包括封装返回信息、定义服务接口及实现、控制层操作以
+及相关数据访问对象，并提供了获取广告、秒杀活动、推荐商品等数据的方法。
+Files:
+- src/main/java/com/macro/mall/portal/domain/HomeContentResult.java:
+此文件定义了一个用于封装首页内容返回信息的Java类。
+- src/main/java/com/macro/mall/portal/domain/FlashPromotionProduct.java:
+此文件定义了一个用于封装秒杀商品信息的类。
+- src/main/java/com/macro/mall/portal/dao/HomeDao.java:
+此文件定义了首页内容管理的数据访问对象接口。
+- src/main/java/com/macro/mall/portal/service/HomeService.java:
+此文件定义了首页内容管理Service接口及其方法。
+- src/main/java/com/macro/mall/portal/util/DateUtil.java:
+此文件实现了一个日期工具类，提供了提取日期和时间部分的方法。
+- src/main/java/com/macro/mall/portal/service/impl/HomeServiceImpl.java:
+此文件实现了首页内容管理服务，并提供了获取首页广告、秒杀活动、推荐商品等数据的方
+法。
+- src/main/java/com/macro/mall/portal/controller/HomeController.java:
+此文件定义了首页内容管理Controller及相关操作。
+
+Community 5:
+Description: 这些文件共同实现了基于Spring
+Security的会员管理系统，包括用户认证、服务接口、缓存管理及UserDetailsService自定
+义实现。
+Files:
+-
+src/main/java/com/macro/mall/portal/service/impl/UmsMemberCacheServiceImpl.java:
+此文件实现了会员信息的缓存管理功能。
+- src/main/java/com/macro/mall/portal/service/UmsMemberCacheService.java:
+此文件定义了会员信息缓存的相关操作方法。
+- src/main/java/com/macro/mall/portal/domain/MemberDetails.java:
+此文件定义了一个SpringSecurity所需用户信息封装类，实现UserDetails接口。
+- src/main/java/com/macro/mall/portal/config/MallSecurityConfig.java:
+该配置类用于Spring Security认证，通过自定义UserDetailsService获取用户信息。
+- src/main/java/com/macro/mall/portal/service/impl/UmsMemberServiceImpl.java:
+此文件实现了会员管理服务接口，并提供了用户注册、登录、信息查询等功能。
+- src/main/java/com/macro/mall/portal/service/UmsMemberService.java:
+此文件定义了会员管理Service接口及其方法，用于处理用户注册、登录、信息查询等功能
+。
+
+Community 7:
+Description: 这些文件定义了前台商品管理相关的控制器、服务接口及数据模型。
+Files:
+- src/main/java/com/macro/mall/portal/domain/PmsPortalProductDetail.java:
+此文件定义了前台商品详情的数据模型。
+- src/main/java/com/macro/mall/portal/service/PmsPortalBrandService.java:
+此文件定义了前台品牌管理和产品列表查询的服务接口。
+-
+src/main/java/com/macro/mall/portal/service/impl/PmsPortalProductServiceImpl.jav
+a: 此文件实现了前台商品管理的相关服务接口。
+-
+src/main/java/com/macro/mall/portal/controller/MemberProductCollectionController
+.java: 此文件定义了会员商品收藏管理的控制器接口。
+-
+src/main/java/com/macro/mall/portal/controller/PmsPortalProductController.java:
+此文件定义了前台商品管理相关的控制器接口。
+- src/main/java/com/macro/mall/portal/domain/PmsProductCategoryNode.java:
+该文件定义了一个表示包含子分类的商品类，并被其他文件用于前后台商品管理相关服务接
+口的实现。
+- src/main/java/com/macro/mall/portal/service/PmsPortalProductService.java:
+此文件定义了前台商品管理相关的服务接口。
+-
+src/main/java/com/macro/mall/portal/service/impl/PmsPortalBrandServiceImpl.java:
+此文件定义了前台品牌管理和产品列表查询的服务实现类。
+- src/main/java/com/macro/mall/portal/controller/PmsPortalBrandController.java:
+此文件定义了前台品牌管理和产品列表查询的控制器接口。
+- src/main/java/com/macro/mall/portal/domain/HomeFlashPromotion.java:
+该文件定义了一个用于封装首页秒杀活动信息的Java类。
+
+Community 8:
+Description: 该模块用于测试Spring Boot应用的上下文加载。
+Files:
+- src/test/java/com/macro/mall/portal/MallPortalApplicationTests.java:
+该文件用于测试Spring Boot应用的上下文加载。
+
+Community 9:
+Description: 这个模块用于配置Spring的任务调度功能。
+Files:
+- src/main/java/com/macro/mall/portal/config/SpringTaskConfig.java:
+该文件配置了Spring任务调度功能。
+
+Community 10:
+Description: 这个模块用于配置支付宝支付相关的参数。
+Files:
+- src/main/java/com/macro/mall/portal/config/AlipayConfig.java:
+配置支付宝支付的相关参数。
+
+Community 6:
+Description:
+该配置类启用了MyBatis的相关设置和事务管理，并扫描了指定的Mapper接口。
+Files:
+- src/main/java/com/macro/mall/portal/config/MyBatisConfig.java:
+该配置类启用了MyBatis相关设置和事务管理，并扫描指定的Mapper接口。
+Build 1898 lines in repo map
+
+Process finished with exit code 0
