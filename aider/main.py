@@ -9,7 +9,11 @@ import webbrowser
 from dataclasses import fields
 from pathlib import Path
 
-import git
+try:
+    import git
+except ImportError:
+    git = None
+
 import importlib_resources
 from dotenv import load_dotenv
 from prompt_toolkit.enums import EditingMode
@@ -93,6 +97,9 @@ def make_new_repo(git_root, io):
 
 
 def setup_git(git_root, io):
+    if git is None:
+        return
+
     try:
         cwd = Path.cwd()
     except OSError:
@@ -106,7 +113,7 @@ def setup_git(git_root, io):
         except ANY_GIT_ERROR:
             pass
     elif cwd == Path.home():
-        io.tool_warning("You should probably run aider in a directory, not your home dir.")
+        io.tool_warning("You should probably run aider in your project's directory, not your home dir.")
         return
     elif cwd and io.confirm_ask(
         "No git repo found, create one to track aider's changes (recommended)?"
@@ -166,7 +173,8 @@ def check_gitignore(git_root, io, ask=True):
             existing_lines = content.splitlines()
             for pat in patterns:
                 if pat not in existing_lines:
-                    patterns_to_add.append(pat)
+                    if '*' in pat or (Path(git_root) / pat).exists():
+                        patterns_to_add.append(pat)
         except OSError as e:
             io.tool_error(f"Error when trying to read {gitignore_file}: {e}")
             return
@@ -410,7 +418,9 @@ def main(argv=None, input=None, output=None, force_git_root=None, return_coder=F
     if argv is None:
         argv = sys.argv[1:]
 
-    if force_git_root:
+    if git is None:
+        git_root = None
+    elif force_git_root:
         git_root = force_git_root
     else:
         git_root = get_git_root()
@@ -456,6 +466,9 @@ def main(argv=None, input=None, output=None, force_git_root=None, return_coder=F
 
     # Parse again to include any arguments that might have been defined in .env
     args = parser.parse_args(argv)
+
+    if git is None:
+        args.git = False
 
     if args.analytics_disable:
         analytics = Analytics(permanently_disable=True)
@@ -515,6 +528,7 @@ def main(argv=None, input=None, output=None, force_git_root=None, return_coder=F
             llm_history_file=args.llm_history_file,
             editingmode=editing_mode,
             fancy_input=args.fancy_input,
+            multiline_mode=args.multiline,
         )
 
     io = get_io(args.pretty)
@@ -645,7 +659,7 @@ def main(argv=None, input=None, output=None, force_git_root=None, return_coder=F
     # We can't know the git repo for sure until after parsing the args.
     # If we guessed wrong, reparse because that changes things like
     # the location of the config.yml and history files.
-    if args.git and not force_git_root:
+    if args.git and not force_git_root and git is not None:
         right_repo_root = guessed_wrong_repo(io, git_root, fnames, git_dname)
         if right_repo_root:
             analytics.event("exit", reason="Recursing with correct repo")
@@ -858,10 +872,17 @@ def main(argv=None, input=None, output=None, force_git_root=None, return_coder=F
         ignores.append(args.aiderignore)
 
     if args.watch_files:
-        file_watcher = FileWatcher(coder, gitignores=ignores, verbose=args.verbose)
+        file_watcher = FileWatcher(
+            coder,
+            gitignores=ignores,
+            verbose=args.verbose,
+            analytics=analytics,
+            root=str(Path.cwd()) if args.subtree_only else None,
+        )
         coder.file_watcher = file_watcher
 
     if args.copy_paste:
+        analytics.event("copy-paste mode")
         ClipboardWatcher(coder.io, verbose=args.verbose)
 
     coder.show_announcements()

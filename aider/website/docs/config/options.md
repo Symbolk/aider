@@ -13,9 +13,7 @@ or review them below.
 - TOC
 {:toc}
 
-## LLM keys
-
-{% include special-keys.md %}
+{% include keys.md %}
 
 ## Usage summary
 
@@ -78,6 +76,7 @@ usage: aider [-h] [--model] [--opus] [--sonnet] [--haiku] [--4]
              [--encoding] [-c] [--env-file]
              [--suggest-shell-commands | --no-suggest-shell-commands]
              [--fancy-input | --no-fancy-input]
+             [--multiline | --no-multiline]
              [--detect-urls | --no-detect-urls] [--editor]
 
 ```
@@ -382,7 +381,7 @@ Set the background color for the current item in the completion menu (default: t
 Environment variable: `AIDER_COMPLETION_MENU_CURRENT_BG_COLOR`  
 
 ### `--code-theme VALUE`
-Set the markdown code theme (default: default, other options include monokai, solarized-dark, solarized-light)  
+Set the markdown code theme (default: default, other options include monokai, solarized-dark, solarized-light, or a Pygments builtin style, see https://pygments.org/styles for available themes)  
 Default: default  
 Environment variable: `AIDER_CODE_THEME`  
 
@@ -732,6 +731,14 @@ Environment variable: `AIDER_FANCY_INPUT`
 Aliases:
   - `--fancy-input`
   - `--no-fancy-input`
+
+### `--multiline`
+Enable/disable multi-line input mode with Meta-Enter to submit (default: False)  
+Default: False  
+Environment variable: `AIDER_MULTILINE`  
+Aliases:
+  - `--multiline`
+  - `--no-multiline`
 
 ### `--detect-urls`
 Enable/disable detection and offering to add URLs to chat (default: True)  

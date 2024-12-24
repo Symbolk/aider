@@ -1,7 +1,6 @@
 ---
 title: Release history
-parent: More info
-nav_order: 900
+nav_order: 925
 highlight_image: /assets/blame.jpg
 description: Release notes and stats on aider writing its own code.
 ---
@@ -26,13 +25,53 @@ cog.out(text)
 
 ### main branch
 
-- [Aider works with LLM web chat UIs with `--copy-paste` mode](https://aider.chat/docs/usage/copypaste.html).
-- Better error messages when missing dependencies for Gemini and Bedrock models
-- Added `--api-key provider=key` and `--set-env VAR=value` flags for setting API keys and environment variables
-- Control-D now properly exits the program
-- Fixed shell environment handling when running commands
-- Reorganized command line arguments with improved help messages and grouping
-- Aider wrote 72% of the code in this release.
+- Full support for o1 models.
+- Ask 10% of users to opt-in to analytics.
+- Aider wrote 75% of the code in this release.
+
+### Aider v0.69.1
+
+- Fix for gemini model names in model metadata.
+- Show hints about AI! and AI? when user makes AI comments.
+- Support for running without git installed.
+- Improved environment variable setup messages on Windows.
+
+### Aider v0.69.0
+
+- [Watch files](https://aider.chat/docs/usage/watch.html) improvements:
+  - Use `# ... AI?` comments to trigger aider and ask questions about your code.
+  - Now watches *all* files, not just certain source files.
+  - Use `# AI comments`, `// AI comments`, or `-- AI comments` to give aider instructions in any text file.
+- Full support for Gemini Flash 2.0 Exp:
+  - `aider --model flash` or `aider --model gemini/gemini-2.0-flash-exp`
+- [New `--multiline` flag and `/multiline-mode` command](https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages) makes ENTER a soft newline and META-ENTER send the message, by @miradnanali.
+- `/copy-context <instructions>` now takes optional "instructions" when [copying code context to the clipboard](https://aider.chat/docs/usage/copypaste.html#copy-aiders-code-context-to-your-clipboard-paste-into-the-web-ui).
+- Improved clipboard error handling with helpful requirements install info.
+- Ask 5% of users if they want to opt-in to analytics.
+- `/voice` now lets you edit the transcribed text before sending.
+- Disabled auto-complete in Y/N prompts.
+- Aider wrote 68% of the code in this release.
+
+### Aider v0.68.0
+
+- [Aider works with LLM web chat UIs](https://aider.chat/docs/usage/copypaste.html).
+  - New `--copy-paste` mode.
+  - New `/copy-context` command.
+- [Set API keys and other environment variables for all providers from command line or yaml conf file](https://aider.chat/docs/config/aider_conf.html#storing-llm-keys).
+  - New `--api-key provider=key` setting.
+  - New `--set-env VAR=value` setting.
+- Added bash and zsh support to `--watch-files`.
+- Better error messages when missing dependencies for Gemini and Bedrock models.
+- Control-D now properly exits the program.
+- Don't count token costs when API provider returns a hard error.
+- Bugfix so watch files works with files that don't have tree-sitter support.
+- Bugfix so o1 models can be used as weak model.
+- Updated shell command prompt.
+- Added docstrings for all Coders.
+- Reorganized command line arguments with improved help messages and grouping.
+- Use the exact `sys.python` for self-upgrades.
+- Added experimental Gemini models.
+- Aider wrote 71% of the code in this release.
 
 ### Aider v0.67.0
 

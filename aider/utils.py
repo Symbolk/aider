@@ -2,14 +2,11 @@ import itertools
 import os
 import platform
 import shlex
-import shutil
 import subprocess
 import sys
 import tempfile
 import time
 from pathlib import Path
-
-import git
 
 from aider.dump import dump  # noqa: F401
 
@@ -74,6 +71,8 @@ class GitTemporaryDirectory(ChdirTemporaryDirectory):
 
 
 def make_repo(path=None):
+    import git
+
     if not path:
         path = "."
     repo = git.Repo.init(path)
@@ -194,25 +193,9 @@ def split_chat_history_markdown(text, include_tool=False):
     return messages
 
 
-# Copied from pip, MIT license
-# https://github.com/pypa/pip/blob/b989e6ef04810bbd4033a3683020bd4ddcbdb627/src/pip/_internal/utils/entrypoints.py#L73
-def get_best_invocation_for_this_python() -> str:
-    """Try to figure out the best way to invoke the current Python."""
-    exe = sys.executable
-    exe_name = os.path.basename(exe)
-
-    # Try to use the basename, if it's the first executable.
-    found_executable = shutil.which(exe_name)
-    if found_executable and os.path.samefile(found_executable, exe):
-        return exe_name
-
-    # Use the full executable name, because we couldn't find something simpler.
-    return exe
-
-
 def get_pip_install(args):
     cmd = [
-        get_best_invocation_for_this_python(),
+        sys.executable,
         "-m",
         "pip",
         "install",

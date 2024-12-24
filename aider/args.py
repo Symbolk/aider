@@ -427,7 +427,8 @@ def get_parser(default_config_files, git_root):
         default="default",
         help=(
             "Set the markdown code theme (default: default, other options include monokai,"
-            " solarized-dark, solarized-light)"
+            " solarized-dark, solarized-light, or a Pygments builtin style,"
+            " see https://pygments.org/styles for available themes)"
         ),
     )
     group.add_argument(
@@ -794,6 +795,12 @@ def get_parser(default_config_files, git_root):
         action=argparse.BooleanOptionalAction,
         default=True,
         help="Enable/disable fancy input with history and completion (default: True)",
+    )
+    group.add_argument(
+        "--multiline",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Enable/disable multi-line input mode with Meta-Enter to submit (default: False)",
     )
     group.add_argument(
         "--detect-urls",
