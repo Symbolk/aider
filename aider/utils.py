@@ -382,6 +382,19 @@ def printable_shell_command(cmd_list):
     else:
         return shlex.join(cmd_list)
 
+def get_aidoc_dir(repo_root):
+    """获取或创建.aidoc目录
+
+    Args:
+        repo_root: str 仓库根目录路径
+
+    Returns:
+        Path: .aidoc目录的路径
+    """
+    aidoc_dir = Path(repo_root) / '.aidoc'
+    if not aidoc_dir.exists():
+        aidoc_dir.mkdir(parents=True, exist_ok=True)
+    return aidoc_dir
 
 def main():
     spinner = Spinner("Running spinner...")

@@ -16,9 +16,9 @@ from pygments.lexers import guess_lexer_for_filename
 from pygments.token import Token
 from tqdm import tqdm
 
-from aider.graph_alg import save_mermaid_diagram, detect_communities, save_d3_visualization
+from aider.graph_alg import detect_communities, save_d3_visualization
 from aider.aiderio import InputOutput
-from aider.llm_util import generate_community_descriptions
+from aider.llm_util import generate_community_descriptions, save_flow_diagram
 from aider.models import Model
 from aider.special import filter_important_files
 from aider.utils import Spinner
@@ -453,15 +453,14 @@ class RepoMap:
 
                     G.add_edge(referencer, definer, weight=mul * num_refs, ident=ident)
 
-        # save_mermaid_diagram(self.root, G)
         save_d3_visualization(self.root, G)  # 生成基本的依赖图可视化
 
         communities = detect_communities(G)
         if communities:
             community_infos = generate_community_descriptions(G, self.root, communities, lang='zh')
             # 生成带社区信息的可视化
-            save_d3_visualization(self.root, G, community_infos, os.path.join(self.root, "repo_overview_with_communities.html"))
-            
+            save_d3_visualization(self.root, G, community_infos, "repo_overview_with_communities.html")
+            save_flow_diagram(self.root, G, community_infos)
             # 查看结果
             if self.verbose and community_infos:
                 for community_id, info in community_infos.items():
@@ -789,7 +788,6 @@ def get_supported_languages_md():
 
     return res
 
-
 if __name__ == "__main__":
     # 支持的文件扩展名(根据queries文件夹中的tree-sitter查询文件)
     extensions = {
@@ -858,7 +856,7 @@ if __name__ == "__main__":
         # Git相关
         '.git',
         
-        # 其他构建���缓存目录
+        # 其他构建缓存目录
         'target',      # Rust, Java等
         'bin',
         'obj',        # .NET

@@ -137,7 +137,7 @@
             .attr("dy", d => d.radius * 2.5 + 5)  /* 增加标签与节点的距离 */
             .attr("text-anchor", "middle")
             .style("font-size", d => Math.max(10, Math.min(d.radius * 0.8, 14)) + "px")
-            .each(function(d) {  /* 检测并避��标签重叠 */
+            .each(function(d) {  /* 检测并避免标签重叠 */
                 const bbox = this.getBBox();
                 d.labelHeight = bbox.height;
                 d.labelWidth = bbox.width;

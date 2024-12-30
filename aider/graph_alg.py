@@ -1,168 +1,11 @@
 from collections import defaultdict
 from loguru import logger
 import math
+import json
+import os
+from collections import defaultdict
 
-def to_mermaid(G, max_edges=100):
-    """
-    将NetworkX图转换为Mermaid格式，生成更紧凑的图表
-    
-    Args:
-        G: networkx.MultiDiGraph 需要转换的图
-        max_edges: int 最大边数限制
-        
-    Returns:
-        str: Mermaid格式的图表字符串
-    """
-    # Mermaid图表头部
-    mermaid = ["graph TD;"]
-    
-    # 记录已处理的边和节点
-    processed_edges = set()
-    processed_nodes = set()
-    
-    # 简化文件名的函数
-    def simplify_filename(fname):
-        # 只保留最后两层路径
-        parts = fname.split('/')
-        if len(parts) > 2:
-            return '/'.join(parts[-2:])
-        return fname
-    
-    # 处理所有边，限制最大边数
-    for i, (u, v, data) in enumerate(G.edges(data=True)):
-        if i >= max_edges:
-            break
-        
-        # 创建唯一的边标识
-        edge_id = (u, v)
-        
-        # 如果这条边已经处理过，跳过
-        if edge_id in processed_edges:
-            continue
-            
-        # 获取这对有边的权重总和
-        weight = sum(d.get('weight', 1) for _, _, d in G.edges(data=True) if (_, _) == edge_id)
-        
-        # 简化节点标签
-        u_simple = simplify_filename(u)
-        v_simple = simplify_filename(v)
-        
-        # 清理节点标签
-        u_clean = u_simple.replace('/', '_').replace('.', '_')
-        v_clean = v_simple.replace('/', '_').replace('.', '_')
-        
-        # 添加节点定义（如果还没添加过）
-        if u_clean not in processed_nodes:
-            mermaid.append(f"    {u_clean}[{u_simple}]")
-            processed_nodes.add(u_clean)
-        if v_clean not in processed_nodes:
-            mermaid.append(f"    {v_clean}[{v_simple}]")
-            processed_nodes.add(v_clean)
-        
-        # 根据权重设置线条粗细
-        if weight > 5:
-            thickness = "==>"    # 粗线
-        elif weight > 2:
-            thickness = "-->"    # 中等线
-        else:
-            thickness = "-.->"   # 虚线
-            
-        # 添加边定义，不显示权重标签以减少复杂度
-        edge_line = f"    {u_clean} {thickness} {v_clean}"
-        mermaid.append(edge_line)
-        
-        # 记录已处理的边
-        processed_edges.add(edge_id)
-    
-    # 返回完整的Mermaid图表定义
-    return "\n".join(mermaid)
-
-def save_mermaid_diagram(repo_root, G, output_path=None):
-    """
-    将依赖图渲染为图片并保存
-    
-    Args:
-        G: networkx.MultiDiGraph 代码依赖关系图
-        output_path: str 输出文件路径，默认为 root/repo_overview.png
-    """
-    try:
-        from mdutils import MdUtils
-        import subprocess
-        import tempfile
-        import os
-        import json
-        
-        # 生成Mermaid图表内容
-        mermaid_content = to_mermaid(G)
-        
-        # 如果没有指定输出路径，使用默认路径
-        if output_path is None:
-            output_path = os.path.join(repo_root, "repo_overview.png")
-            
-        # 创建临时配置文件，增加最大文本限制
-        config = {
-            "theme": "default",
-            "maxTextSize": 50000,  # 增加文本大小限制
-            "fontFamily": "arial",
-            "fontSize": 12,        # 减小字体大小
-            "flowchart": {
-                "htmlLabels": True,
-                "curve": "basis",
-                "padding": 15,
-                "useMaxWidth": False,
-                "diagramPadding": 20,
-                "nodeSpacing": 30,
-                "rankSpacing": 30
-            }
-        }
-
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_config:
-            json.dump(config, temp_config)
-            temp_config_path = temp_config.name
-            
-        # 创建临时markdown文件
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as temp_md:
-            md = MdUtils(file_name=temp_md.name)
-            
-            # 添加Mermaid图表，使用较小的节点
-            mermaid_content = mermaid_content.replace('["', '[/"').replace('"]', '"/]')  # 使用更紧凑的节点样式
-            md.write(f"```mermaid\n{mermaid_content}\n```\n")
-            md.create_md_file()
-            temp_md_path = temp_md.name
-            
-        # 使用mermaid-cli渲染图片
-        try:
-            subprocess.run([
-                'mmdc',
-                '-i', temp_md_path,
-                '-o', output_path,
-                '-b', 'transparent',
-                '-w', '3840',     # 增加宽度
-                '-H', '2160',     # 增加高度
-                '-c', temp_config_path,  # 使用配置文件
-                '-s', '2'         # 增加缩放因子
-            ], check=True)
-            
-            print(f"Mermaid diagram saved to: {output_path}")
-                
-        except subprocess.CalledProcessError as e:
-            print(f"Error rendering Mermaid diagram: {e}")
-            print("Please ensure mermaid-cli is installed (npm install -g @mermaid-js/mermaid-cli)")
-        except FileNotFoundError:
-            print("mermaid-cli not found")
-            print("Please install mermaid-cli: npm install -g @mermaid-js/mermaid-cli")
-        
-        # 清理临时文件
-        try:
-            os.unlink(temp_md_path)
-            os.unlink(temp_config_path)
-        except:
-            pass
-            
-    except ImportError as e:
-        print(f"Required package not found: {e}")
-        print("Please install required packages:")
-        print("pip install mdutils")
+from aider.utils import get_aidoc_dir
 
 
 def detect_communities(G):
@@ -184,7 +27,6 @@ def detect_communities(G):
         # 将MultiDiGraph转换为无向图以便进行社区检测
         undirected_G = G.to_undirected()
         
-        # 如果���为空或只有一个节点，返回None
         if len(undirected_G.nodes()) <= 1:
             return None
             
@@ -216,7 +58,7 @@ def topological_sort_paths(G, source=None, target=None, max_paths=100):
     import networkx as nx
     
     def _find_sccs(G):
-        """使用Tarjan算法找出图中的强连通���量"""
+        """使用Tarjan算法找出图中的强连通分量"""
         sccs = list(nx.strongly_connected_components(G))
         scc_mapping = {}  # 原始节点到SCC ID的映射
         scc_nodes = {}    # SCC ID到原始节点集合的映射
@@ -254,7 +96,6 @@ def topological_sort_paths(G, source=None, target=None, max_paths=100):
         if all_paths is None:
             all_paths = []
             
-        # 如果已经找到足够多的路径，提前��回
         if len(all_paths) >= max_paths:
             return all_paths
             
@@ -288,7 +129,7 @@ def topological_sort_paths(G, source=None, target=None, max_paths=100):
         return all_paths
         
     def _expand_path(path, scc_nodes):
-        """展开缩点后的路径，���每个SCC节点替换为其包含的原始节点"""
+        """展开缩点后的路径，每个SCC节点替换为其包含的原始节点"""
         expanded_path = []
         for node in path:
             if node.startswith('scc_'):
@@ -368,7 +209,7 @@ def topological_sort_paths(G, source=None, target=None, max_paths=100):
             
     return paths, scc_nodes if has_cycle else {}
 
-def save_d3_visualization(repo_root, G, communities=None, output_path=None):
+def save_d3_visualization(repo_root, G, communities=None, output_file_name=None):
     """
     将依赖图保存为可交互的d3.js可视化HTML文件
     
@@ -376,17 +217,14 @@ def save_d3_visualization(repo_root, G, communities=None, output_path=None):
         repo_root: str 仓库根目录
         G: networkx.MultiDiGraph 代码依赖关系图
         communities: dict 社区检测结果，key是社区id，value是文件集合
-        output_path: str 输出文件路径，默认为 root/repo_overview.html
+        output_file_name: str 输出文件名，默认为 repo_overview.html
     """
-    import json
-    import os
-    from pathlib import Path
-    from collections import defaultdict
-    
     # 如果没有指定输出路径，使用默认路径
-    if output_path is None:
-        output_path = os.path.join(repo_root, "repo_overview.html")
-        
+    if output_file_name is None:
+        output_file_path = os.path.join(get_aidoc_dir(repo_root), "repo_overview.html")
+    else:
+        output_file_path = os.path.join(get_aidoc_dir(repo_root), output_file_name)
+
     # 简化文件名的函数
     def simplify_filename(fname):
         return os.path.basename(fname)
@@ -649,7 +487,7 @@ def save_d3_visualization(repo_root, G, communities=None, output_path=None):
             .attr("dy", d => d.radius * 2.5 + 5)  /* 增加标签与节点的距离 */
             .attr("text-anchor", "middle")
             .style("font-size", d => Math.max(10, Math.min(d.radius * 0.8, 14)) + "px")
-            .each(function(d) {  /* 检测并避��标签重叠 */
+            .each(function(d) {  /* 检测并避免标签重叠 */
                 const bbox = this.getBBox();
                 d.labelHeight = bbox.height;
                 d.labelWidth = bbox.width;
@@ -765,7 +603,7 @@ def save_d3_visualization(repo_root, G, communities=None, output_path=None):
     html_content = html_template.replace("$DATA", json.dumps(graph_data))
     
     # 保存HTML文件
-    with open(output_path, "w") as f:
+    with open(output_file_path, "w") as f:
         f.write(html_content)
         
-    print(f"D3.js visualization saved to: {output_path}")
+    print(f"AI generated dos are saved to: {output_file_path}")

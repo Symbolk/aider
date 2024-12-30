@@ -1,7 +1,10 @@
 import os
+import re
+
 from litellm import completion
 from openai import OpenAI
 
+from aider.utils import get_aidoc_dir
 from aider.graph_alg import topological_sort_paths
 
 # Bilingual prompts for code analysis
@@ -19,8 +22,16 @@ PROMPTS = {
         "zh": "\n此文件被以下用途的其他文件使用：\n"
     },
     "community_overview": {
-        "en": "Based on these file descriptions, please provide a concise overview of the purpose of this code community/module:\n",
-        "zh": "基于这些文件描述，请使用一句 中文简要概述这个模块的用途：\n"
+        "en": "Based on these file descriptions, please provide:\n1. A concise module name (2-4 words) that best represents this community's functionality\n2. A concise overview of the purpose of this code community/module\nFormat the response as:\nName: [module name]\nDescription: [description]",
+        "zh": "基于这些文件描述，请提供：\n1. 一个最能代表这个社区功能的简短模块名称（2-4个词）\n2. 一句话简要概述这个模块的用途\n请按如下格式回复：\n模块名：[模块名]\n描述：[描述]"
+    },
+    "project_summary": {
+        "en": "Based on these community descriptions, please provide a concise summary of the entire project, focusing on its main purpose and how different modules work together:\n",
+        "zh": "基于这些社区描述，请用中文简要总结整个项目，重点说明项目的主要用途以及不同模块是如何协同工作的：\n"
+    },
+    "flow_diagram": {
+        "en": "Based on the topological sort path of these files and their descriptions, generate a Mermaid flowchart that represents the business logic flow. For each node and edge, provide a concise label that describes its role in the flow. The flowchart should be in the format:\n```mermaid\ngraph TD\n...\n```\nFocus on the high-level business logic rather than implementation details. The generated flowchart must be free of syntax errors and must be renderable directly in markdown.",
+        "zh": "基于这些文件的拓扑排序路径和它们的描述，生成一个表示业务逻辑流程的Mermaid流程图。为每个节点和边提供简洁的标签来描述其在流程中的角色。流程图应该采用以下格式：\n```mermaid\ngraph TD\n...\n```\n请关注高层业务逻辑而不是实现细节。生成的流程图不能有语法错误，必须可以在markdown中直接可以渲染显示。"
     }
 }
 
@@ -140,6 +151,7 @@ def generate_community_descriptions(G, repo_path, communities, lang='en'):
             self.files = set()  # 社区包含的文件
             self.file_descriptions = {}  # 文件的描述，key是文件路径
             self.description = ""  # 社区整体描述
+            self.module_name = ""  # 模块名称
             self.dependency_paths = []  # 社区内的依赖路径
             
     # 验证语言参数
@@ -182,8 +194,24 @@ def generate_community_descriptions(G, repo_path, communities, lang='en'):
             all_descriptions = "\n".join(descriptions.values())
             system_prompt = PROMPTS["system_prompt"][lang]
             prompt = PROMPTS["community_overview"][lang] + all_descriptions
-            info.description = generate_description(system_prompt, "", prompt)
+            response = generate_description(system_prompt, "", prompt)
+            
+            # 解析响应获取模块名和描述
+            if lang == 'zh':
+                module_name_match = re.search(r'模块名：(.+?)\n', response)
+                description_match = re.search(r'描述：(.+)', response)
+            else:
+                module_name_match = re.search(r'Name: (.+?)\n', response)
+                description_match = re.search(r'Description: (.+)', response)
+                
+            if module_name_match and description_match:
+                info.module_name = module_name_match.group(1).strip()
+                info.description = description_match.group(1).strip()
+            else:
+                info.module_name = f"模块 {i}"
+                info.description = response.strip()
         else:
+            info.module_name = f"模块 {i}"
             info.description = ""
 
         community_infos[i] = info
@@ -192,3 +220,113 @@ def generate_community_descriptions(G, repo_path, communities, lang='en'):
             print(f"Community {i+1} description: {info.description}")
             
     return community_infos
+
+def generate_flow_diagram(G, repo_path, path, community_info, lang='zh'):
+    """为给定的拓扑排序路径生成Mermaid流程图
+    
+    Args:
+        G: networkx.MultiDiGraph 代码依赖关系图
+        repo_path: str 仓库根目录路径
+        path: list 拓扑排序路径中的文件列表
+        community_info: CommunityInfo 社区信息对象
+        lang: str 语言选择，'en' 或 'zh'
+        
+    Returns:
+        str: Mermaid格式的流程图
+    """
+    # 准备文件描述和路径信息
+    path_info = []
+    for fname in path:
+        content = get_file_content(repo_path, fname)
+        description = community_info.file_descriptions.get(fname, '')
+        path_info.append({
+            'file': fname,
+            'content': content,
+            'description': description
+        })
+        
+    # 构建提示语
+    prompt = PROMPTS["flow_diagram"][lang] + "\n\nFiles in path:\n"
+    for info in path_info:
+        prompt += f"\n{info['file']}:\n{info['description']}\n"
+    
+    prompt += f"\nCommunity purpose: {community_info.description}\n"
+    
+    # 调用模型生成流程图
+    system_prompt = PROMPTS["system_prompt"][lang]
+    mermaid = generate_description(content=prompt, system_prompt=system_prompt, task_prompt=prompt)
+    
+    # 提取Mermaid代码块
+    import re
+    match = re.search(r'```mermaid\n(.*?)```', mermaid, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+    return mermaid
+
+def save_flow_diagram(repo_root, G, community_infos=None):
+    """生成README.md内容
+    
+    Args:
+        repo_root: str 仓库根目录路径
+        G: networkx.MultiDiGraph 代码依赖关系图
+        community_infos: dict 社区信息字典，key是社区ID，value是CommunityInfo对象
+    """
+    if not community_infos:
+        return
+        
+    # 获取项目名称
+    project_name = os.path.basename(repo_root)
+    
+    # 生成项目总结
+    project_summary = generate_project_summary(community_infos, lang='zh')
+    
+    # 构建README.md内容
+    content = f"# {project_name}\n\n"
+    content += "## 项目总结\n"
+    content += f"{project_summary}\n\n"
+    content += f"## 项目概览\n\n"
+    content += "[点击在浏览器中打开](repo_overview_with_communities.html)\n\n"
+    content += "## 主要模块\n"
+    
+    # 为每个社区生成内容
+    for community_id, info in community_infos.items():
+        content += f"### {info.module_name}\n"
+        content += f"{info.description}\n\n"
+        
+        # 为每个社区的依赖路径生成流程图
+        for path in info.dependency_paths:
+            if path:  # 确保路径非空
+                flow_diagram = generate_flow_diagram(G, repo_root, path, info, lang='zh')
+                if flow_diagram:
+                    content += "```mermaid\n"
+                    content += flow_diagram
+                    content += "\n```\n\n"
+    
+    # 保存README.md
+    output_path = os.path.join(get_aidoc_dir(repo_root), "README.md")
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+def generate_project_summary(community_infos, lang='zh'):
+    """生成项目总结
+    
+    Args:
+        community_infos: dict 社区信息字典，key是社区ID，value是CommunityInfo对象
+        lang: str 语言选择，'en' 或 'zh'
+        
+    Returns:
+        str: 项目总结
+    """
+    if not community_infos:
+        return ""
+        
+    # 构建提示语
+    prompt = PROMPTS["project_summary"][lang] + "\n\nModules:\n"
+    for community_id, info in community_infos.items():
+        prompt += f"\n{info.module_name}:\n{info.description}\n"
+    
+    # 调用模型生成项目总结
+    system_prompt = PROMPTS["system_prompt"][lang]
+    summary = generate_description(content=prompt, system_prompt=system_prompt, task_prompt=prompt)
+    
+    return summary
