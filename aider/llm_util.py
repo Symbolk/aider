@@ -1,5 +1,6 @@
 import os
 from litellm import completion
+from openai import OpenAI
 
 from aider.graph_alg import topological_sort_paths
 
@@ -23,8 +24,33 @@ PROMPTS = {
     }
 }
 
-
 def generate_description(content, system_prompt, task_prompt):
+    """调用DeepSeek生成描述
+    
+    Args:
+        content: str 代码内容
+        task_prompt: dict 包含中英文的提示语字典
+    """
+    client = OpenAI(api_key=os.environ.get("DEEPSEEK_API_KEY"), base_url="https://api.deepseek.com")
+
+    try:
+        response = client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[
+                {"role": "system", "content": f"{system_prompt}"},
+                {"role": "user", "content": f"{task_prompt}\n\nCode:\n```\n{content}\n```"},
+            ],
+            stream=False
+        )
+
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"Failed to generate description: {e}")
+        print(f"Error details: {str(e)}")
+        return ""
+
+
+def generate_description_ollama(content, system_prompt, task_prompt):
     """调用Ollama生成描述
     
     Args:
