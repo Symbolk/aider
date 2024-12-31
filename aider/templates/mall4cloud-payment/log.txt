@@ -1,0 +1,114 @@
+/Users/symbolk/miniconda3/envs/aider/bin/python /Users/symbolk/coding/ai/aider/aider/repomap.py /Users/symbolk/coding/demo/mall4cloud/mall4cloud-payment 
+Warning: Input is not a terminal (fd=0).
+RepoMap initialized with map_mul_no_files: 8
+Processing 
+/Users/symbolk/coding/demo/mall4cloud/mall4cloud-payment/src/main/java/com/mall4
+j/cloud/payment/PaymentApplication.java
+Processing 
+/Users/symbolk/coding/demo/mall4cloud/mall4cloud-payment/src/main/java/com/mall4
+j/cloud/payment/bo/PayInfoBO.java
+Processing 
+/Users/symbolk/coding/demo/mall4cloud/mall4cloud-payment/src/main/java/com/mall4
+j/cloud/payment/bo/PayInfoResultBO.java
+Processing 
+/Users/symbolk/coding/demo/mall4cloud/mall4cloud-payment/src/main/java/com/mall4
+j/cloud/payment/config/RocketMqConfig.java
+Processing 
+/Users/symbolk/coding/demo/mall4cloud/mall4cloud-payment/src/main/java/com/mall4
+j/cloud/payment/constant/BackType.java
+Processing 
+/Users/symbolk/coding/demo/mall4cloud/mall4cloud-payment/src/main/java/com/mall4
+j/cloud/payment/constant/PayStatus.java
+Processing 
+/Users/symbolk/coding/demo/mall4cloud/mall4cloud-payment/src/main/java/com/mall4
+j/cloud/payment/controller/PayController.java
+Processing 
+/Users/symbolk/coding/demo/mall4cloud/mall4cloud-payment/src/main/java/com/mall4
+j/cloud/payment/controller/PayNoticeController.java
+Processing 
+/Users/symbolk/coding/demo/mall4cloud/mall4cloud-payment/src/main/java/com/mall4
+j/cloud/payment/dto/PayInfoDTO.java
+Processing 
+/Users/symbolk/coding/demo/mall4cloud/mall4cloud-payment/src/main/java/com/mall4
+j/cloud/payment/mapper/PayInfoMapper.java
+Processing 
+/Users/symbolk/coding/demo/mall4cloud/mall4cloud-payment/src/main/java/com/mall4
+j/cloud/payment/model/PayInfo.java
+Processing 
+/Users/symbolk/coding/demo/mall4cloud/mall4cloud-payment/src/main/java/com/mall4
+j/cloud/payment/service/PayInfoService.java
+Processing 
+/Users/symbolk/coding/demo/mall4cloud/mall4cloud-payment/src/main/java/com/mall4
+j/cloud/payment/service/impl/PayInfoServiceImpl.java
+Processing community 2...
+2024-12-31 14:14:21.126 | INFO     | aider.graph_alg:topological_sort_paths:146 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-31 14:14:21.126 | INFO     | aider.graph_alg:topological_sort_paths:202 - Found 2 topological sort paths
+2024-12-31 14:14:21.126 | INFO     | aider.graph_alg:topological_sort_paths:206 - Detected 3 strongly connected components
+Community 2 description: 处理订单支付记录的业务逻辑，包括支付、支付成功处理及支付状态查询。
+Processing community 5...
+2024-12-31 14:14:30.071 | INFO     | aider.graph_alg:topological_sort_paths:146 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-31 14:14:30.071 | INFO     | aider.graph_alg:topological_sort_paths:202 - Found 1 topological sort paths
+2024-12-31 14:14:30.072 | INFO     | aider.graph_alg:topological_sort_paths:206 - Detected 2 strongly connected components
+Community 5 description: 该模块负责处理支付请求、管理支付状态及定义支付相关的业务数据。
+Processing community 4...
+2024-12-31 14:14:34.473 | INFO     | aider.graph_alg:topological_sort_paths:146 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-31 14:14:34.473 | INFO     | aider.graph_alg:topological_sort_paths:202 - Found 1 topological sort paths
+2024-12-31 14:14:34.473 | INFO     | aider.graph_alg:topological_sort_paths:206 - Detected 1 strongly connected components
+Community 4 description: 该模块用于定义和管理订单支付记录的相关数据库操作。
+Processing community 1...
+2024-12-31 14:14:38.570 | INFO     | aider.graph_alg:topological_sort_paths:146 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-31 14:14:38.570 | INFO     | aider.graph_alg:topological_sort_paths:202 - Found 1 topological sort paths
+2024-12-31 14:14:38.570 | INFO     | aider.graph_alg:topological_sort_paths:206 - Detected 2 strongly connected components
+Community 1 description: 处理支付异步回调通知并更新支付状态，定义支付后返回的基础数据对象。
+Processing community 3...
+2024-12-31 14:14:42.359 | INFO     | aider.graph_alg:topological_sort_paths:146 - Graph contains cycles, applying Tarjan's algorithm for condensation
+2024-12-31 14:14:42.359 | INFO     | aider.graph_alg:topological_sort_paths:202 - Found 1 topological sort paths
+2024-12-31 14:14:42.359 | INFO     | aider.graph_alg:topological_sort_paths:206 - Detected 1 strongly connected components
+Community 3 description: 定义订单支付记录的数据传输对象，包含订单号和支付回跳地址。
+Error generating project summary: 'system'
+
+Community 1:
+Description: 处理订单支付记录的业务逻辑，包括支付、支付成功处理及支付状态查询。
+Files:
+- src/main/java/com/mall4j/cloud/payment/constant/BackType.java: 
+此文件定义了支付回调类型的枚举常量，用于标识不同的支付回调场景。
+- src/main/java/com/mall4j/cloud/payment/service/impl/PayInfoServiceImpl.java: 
+处理订单支付记录的业务逻辑，包括支付、支付成功处理及支付状态查询。
+- src/main/java/com/mall4j/cloud/payment/model/PayInfo.java: 
+此文件用于定义和管理订单支付记录的数据模型，包括支付信息、用户信息、支付状态等。
+- src/main/java/com/mall4j/cloud/payment/constant/PayStatus.java: 
+此文件定义了支付状态的枚举常量，用于标识支付的不同状态。
+
+Community 4:
+Description: 该模块负责处理支付请求、管理支付状态及定义支付相关的业务数据。
+Files:
+- src/main/java/com/mall4j/cloud/payment/bo/PayInfoBO.java: 
+此文件用于定义支付信息的业务对象，包含支付金额、支付单号、回调地址等关键数据。
+- src/main/java/com/mall4j/cloud/payment/controller/PayController.java: 
+此文件用于处理支付相关的请求和逻辑，包括支付接口和支付状态查询。
+
+Community 3:
+Description: 该模块用于定义和管理订单支付记录的相关数据库操作。
+Files:
+- src/main/java/com/mall4j/cloud/payment/service/PayInfoService.java: 
+此文件用于定义和管理订单支付记录的相关数据库操作。
+- src/main/java/com/mall4j/cloud/payment/mapper/PayInfoMapper.java: 
+此文件用于定义和管理订单支付记录的相关数据库操作。
+
+Community 0:
+Description: 处理支付异步回调通知并更新支付状态，定义支付后返回的基础数据对象。
+Files:
+- src/main/java/com/mall4j/cloud/payment/controller/PayNoticeController.java: 
+此文件用于处理支付异步回调通知并更新支付状态。
+- src/main/java/com/mall4j/cloud/payment/bo/PayInfoResultBO.java: 
+此文件用于定义支付后返回的基础数据对象。
+
+Community 2:
+Description: 定义订单支付记录的数据传输对象，包含订单号和支付回跳地址。
+Files:
+- src/main/java/com/mall4j/cloud/payment/dto/PayInfoDTO.java: 
+此文件用于定义订单支付记录的数据传输对象（DTO），包含订单号和支付完成后的回跳地
+址。
+Build 276 lines in repo map
+
+Process finished with exit code 0

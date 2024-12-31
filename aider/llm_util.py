@@ -11,7 +11,7 @@ from aider.graph_alg import topological_sort_paths
 PROMPTS = {
     "system_prompt": {
         "en": "You are an AI model designed to analyze code and provide concise summaries and insights.",
-        "zh": "你是一个AI模型，专门用于分析代码并提供简洁的总结和见解。"
+        "zh": "你是一个资深的软件项目分析专家，精通所有编程语言、技术栈、框架，特别擅长从整体上分析软件仓库并提供简洁的分析和总结。"
     },
     "file_overview": {
         "en": "Read the following code and provide a concise overview of the purpose of the file, excluding any introduction, explanation, or unnecessary details.",
@@ -278,7 +278,7 @@ def save_flow_diagram(repo_root, G, community_infos=None):
     project_name = os.path.basename(repo_root)
     
     # 生成项目总结
-    project_summary = generate_project_summary(community_infos, lang='zh')
+    project_summary = generate_project_summary(repo_root, community_infos, lang='zh')
     
     # 构建README.md内容
     content = f"# {project_name}\n\n"
@@ -307,26 +307,53 @@ def save_flow_diagram(repo_root, G, community_infos=None):
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(content)
 
-def generate_project_summary(community_infos, lang='zh'):
+def generate_project_summary(repo_root, community_infos, lang='zh'):
     """生成项目总结
     
     Args:
-        community_infos: dict 社区信息字典，key是社区ID，value是CommunityInfo对象
-        lang: str 语言选择，'en' 或 'zh'
-        
-    Returns:
-        str: 项目总结
+        repo_root: str 项目路径
+        community_infos: dict 社区信息，key是社区id，value是CommunityInfo对象
+        lang: str 语言，'zh'或'en'
     """
-    if not community_infos:
-        return ""
-        
-    # 构建提示语
-    prompt = PROMPTS["project_summary"][lang] + "\n\nModules:\n"
+    project_name = os.path.basename(repo_root)
+    
+    # 尝试读取README.md文件
+    readme_content = ""
+    if os.path.exists("README.md"):
+        with open("README.md", "r", encoding="utf-8") as f:
+            readme_content = f.read()
+    
+    # 准备模块描述信息
+    module_descriptions = []
     for community_id, info in community_infos.items():
-        prompt += f"\n{info.module_name}:\n{info.description}\n"
+        module_descriptions.append(f"- {info.description}")
     
-    # 调用模型生成项目总结
-    system_prompt = PROMPTS["system_prompt"][lang]
-    summary = generate_description(content=prompt, system_prompt=system_prompt, task_prompt=prompt)
+    # 构建提示语
+    prompt = PROMPTS["project_summary"][lang]
+    content = f"""
+项目名称：{project_name}
+
+README内容：
+{readme_content}
+
+模块描述：
+{'\n'.join(module_descriptions)}
+"""
     
-    return summary
+    try:
+        # 调用DeepSeek生成项目总结
+        client = OpenAI(api_key=os.environ.get("DEEPSEEK_API_KEY"), base_url="https://api.deepseek.com")
+        response = client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[
+                {"role": "system", "content": PROMPTS["system"][lang]},
+                {"role": "user", "content": f"{prompt}\n\n{content}"},
+            ],
+            max_tokens=1000,  # 允许更长的总结
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        print(f"Error generating project summary: {e}")
+        # 如果API调用失败，生成一个基本的总结
+        basic_summary = f"项目 {project_name} 包含以下主要模块：\n" + "\n".join(module_descriptions)
+        return basic_summary
