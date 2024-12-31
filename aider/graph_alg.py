@@ -417,7 +417,7 @@ def save_d3_visualization(repo_root, G, communities=None, output_file_name=None)
             border: 1px solid #e0e0e0;
         }
         .tree-node.active {
-            background: #1a73e8;
+            background: #e8f0fe;
             border: 1px solid #cce0ff;
             color: #1a73e8;
         }
@@ -560,6 +560,16 @@ def save_d3_visualization(repo_root, G, communities=None, output_file_name=None)
             fill: #1a73e8;
             font-weight: bold;
         }
+        /* 添加文件树高亮效果 */
+        .tree-node.highlighted {
+            background: #e8f0fe;
+            border: 1px solid #cce0ff;
+            color: #1a73e8;
+            font-weight: 500;
+        }
+        .tree-node.highlighted i {
+            color: #1a73e8;
+        }
     </style>
 </head>
 <body>
@@ -627,7 +637,6 @@ def save_d3_visualization(repo_root, G, communities=None, output_file_name=None)
                         case 'css':
                             icon.className = 'fab fa-css3-alt';
                             break;
-                        // 可以继续添加更多文件类型
                     }
                 } else {
                     nodeDiv.innerHTML = `
@@ -661,7 +670,54 @@ def save_d3_visualization(repo_root, G, communities=None, output_file_name=None)
                     
                     renderFileTree(item, childrenDiv, level + 1);
                 } else {
-                    nodeDiv.onclick = () => showFileContent(item.path);
+                    // 修改文件节点的点击事件
+                    nodeDiv.onclick = (e) => {
+                        e.stopPropagation();
+                        // 清除所有文件节点的高亮
+                        document.querySelectorAll('.tree-node').forEach(node => {
+                            node.classList.remove('highlighted');
+                        });
+                        // 添加当前节点的高亮
+                        nodeDiv.classList.add('highlighted');
+                        
+                        // 高亮对应的d3节点
+                        const fullPath = item.path;
+                        highlightD3Node(fullPath);
+                        
+                        // 显示文件内容
+                        showFileContent(fullPath);
+                    };
+                }
+            });
+        }
+
+        // 添加高亮d3节点的函数
+        function highlightD3Node(fullPath) {
+            // 清除所有节点的选中状态
+            node.selectAll("circle").classed("selected", false);
+            node.selectAll("text").classed("selected", false);
+            
+            // 找到并高亮对应的节点
+            node.each(function(d) {
+                if (d.full_name === fullPath) {
+                    const selectedNode = d3.select(this);
+                    selectedNode.select("circle").classed("selected", true);
+                    selectedNode.select("text").classed("selected", true);
+                    
+                    // 将节点移动到视图中心
+                    const transform = d3.zoomTransform(svg.node());
+                    const scale = transform.k;
+                    const x = -d.x * scale + width / 2;
+                    const y = -d.y * scale + height / 2;
+                    
+                    svg.transition()
+                        .duration(750)
+                        .call(
+                            zoom.transform,
+                            d3.zoomIdentity
+                                .translate(x, y)
+                                .scale(scale)
+                        );
                 }
             });
         }
@@ -807,6 +863,11 @@ def save_d3_visualization(repo_root, G, communities=None, output_file_name=None)
             let currentNode = null;
             let currentPath = '';
             
+            // 清除所有高亮
+            document.querySelectorAll('.tree-node').forEach(node => {
+                node.classList.remove('highlighted');
+            });
+            
             // 展开所有父文件夹
             for (let i = 0; i < parts.length; i++) {
                 currentPath += (i === 0 ? '' : '/') + parts[i];
@@ -820,6 +881,10 @@ def save_d3_visualization(repo_root, G, communities=None, output_file_name=None)
                         if (i < parts.length - 1 && !node.classList.contains('expanded')) {
                             node.click();
                         }
+                        // 如果是目标文件，添加高亮效果
+                        if (i === parts.length - 1) {
+                            node.classList.add('highlighted');
+                        }
                         break;
                     }
                 }
@@ -830,7 +895,9 @@ def save_d3_visualization(repo_root, G, communities=None, output_file_name=None)
                 // 滚动到该节点
                 currentNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 // 触发点击事件以显示文件内容
-                currentNode.click();
+                if (currentNode.classList.contains('highlighted')) {
+                    showFileContent(fullPath);
+                }
             }
         }
 
