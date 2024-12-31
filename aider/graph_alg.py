@@ -260,7 +260,7 @@ def save_d3_visualization(repo_root, G, communities=None, output_file_name=None)
                 community_descriptions[community_id] = f"Community {community_id}"
             else:  # CommunityInfo object
                 community_descriptions[community_id] = community_obj.description or f"Community {community_id}"
-            
+
     # 添加文件节点
     for i, node in enumerate(G.nodes()):
         if node in significant_nodes:
@@ -310,7 +310,7 @@ def save_d3_visualization(repo_root, G, communities=None, output_file_name=None)
                             node_data["community_description"] = comm_obj.description
                             node_data["description"] = comm_obj.file_descriptions.get(node, '')
                             break
-                        
+
             nodes.append(node_data)
             node_id_map[node] = i
     
@@ -354,9 +354,160 @@ def save_d3_visualization(repo_root, G, communities=None, output_file_name=None)
     <meta charset="utf-8">
     <title>Code Dependencies Visualization</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { margin: 0; }
-        #graph { width: 100vw; height: 100vh; }
+        body { margin: 0; display: flex; }
+        #sidebar { 
+            width: 300px; 
+            height: 100vh; 
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        #file-tree {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        #file-tree::-webkit-scrollbar {
+            width: 8px;
+        }
+        #file-tree::-webkit-scrollbar-track {
+            background: #f5f5f5;
+        }
+        #file-tree::-webkit-scrollbar-thumb {
+            background: #cdcdcd;
+            border-radius: 4px;
+        }
+        #file-tree::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        #file-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: none;
+            background: white;
+            color: #333;
+        }
+        #graph { 
+            flex: 1;
+            height: 100vh;
+            background: white;
+        }
+        .tree-node {
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            white-space: nowrap;
+            transition: all 0.1s ease;
+            color: #444;
+            border: 1px solid transparent;
+        }
+        .tree-node:hover {
+            background: #f0f0f0;
+            border: 1px solid #e0e0e0;
+        }
+        .tree-node.active {
+            background: #1a73e8;
+            border: 1px solid #cce0ff;
+            color: #1a73e8;
+        }
+        .tree-node i {
+            font-size: 14px;
+            width: 16px;
+            text-align: center;
+        }
+        .tree-node i.fa-folder {
+            color: #ffd04c;  /* 更鲜艳的文件夹黄色 */
+        }
+        .tree-node i.fa-folder-open {
+            color: #ffba00;  /* 打开状态的文件夹颜色 */
+        }
+        .tree-node i.fa-file {
+            color: #42a5f5;  /* 默认文件图标使用蓝色 */
+        }
+        .tree-node i.fa-java {
+            color: #f89820;  /* Java文件图标使用橙色 */
+        }
+        .tree-node i.fa-python {
+            color: #3776ab;  /* Python文件图标使用蓝色 */
+        }
+        .tree-node i.fa-js {
+            color: #f7df1e;  /* JavaScript文件图标使用黄色 */
+        }
+        .tree-node i.fa-html5 {
+            color: #e34f26;  /* HTML文件图标使用红色 */
+        }
+        .tree-node i.fa-css3-alt {
+            color: #1572b6;  /* CSS文件图标使用蓝色 */
+        }
+        .tree-node.folder i.fa-folder-open {
+            display: none;
+        }
+        .tree-node.folder.expanded i.fa-folder {
+            display: none;
+        }
+        .tree-node.folder.expanded i.fa-folder-open {
+            display: inline;
+        }
+        .tree-node .node-content {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .tree-children {
+            margin-left: 12px;
+            display: none;
+            border-left: 1px solid #e6e6e6;
+            margin-top: 4px;
+            margin-bottom: 4px;
+            padding-left: 8px;
+        }
+        .tree-children.expanded {
+            display: block;
+        }
+        pre {
+            margin: 0;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            border: 1px solid #e9ecef;
+        }
+        .back-button {
+            padding: 8px 12px;
+            margin: 10px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #495057;
+            display: none;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            align-items: center;
+            gap: 6px;
+        }
+        .back-button:hover {
+            background: #e9ecef;
+            border-color: #ced4da;
+            color: #212529;
+        }
+        .back-button i {
+            font-size: 12px;
+        }
         .node { cursor: pointer; }
         .node text { 
             font-family: Arial, sans-serif;
@@ -399,15 +550,173 @@ def save_d3_visualization(repo_root, G, communities=None, output_file_name=None)
             color: #ccc;
             margin-top: 8px;
         }
+        /* 添加节点选中效果 */
+        .node circle.selected {
+            stroke: #1a73e8;
+            stroke-width: 2px;
+            filter: drop-shadow(0 0 3px rgba(26, 115, 232, 0.4));
+        }
+        .node text.selected {
+            fill: #1a73e8;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
+    <div id="sidebar">
+        <button class="back-button"><i class="fas fa-arrow-left"></i>返回文件树</button>
+        <div id="file-tree"></div>
+        <div id="file-content"></div>
+    </div>
     <div id="graph"></div>
     <script>
         const data = ''' + json.dumps({"nodes": nodes, "links": links}) + ''';
         
+        // 创建文件树数据结构
+        function createFileTree(files) {
+            const root = { name: '', children: {} };
+            files.forEach(file => {
+                const parts = file.full_name.split('/');
+                let current = root;
+                parts.forEach((part, i) => {
+                    if (!current.children[part]) {
+                        current.children[part] = { 
+                            name: part,
+                            path: parts.slice(0, i + 1).join('/'),
+                            children: {},
+                            isFile: i === parts.length - 1,
+                            description: i === parts.length - 1 ? file.description : ''
+                        };
+                    }
+                    current = current.children[part];
+                });
+            });
+            return root;
+        }
+
+        // 渲染文件树
+        function renderFileTree(node, container, level = 0) {
+            const items = Object.values(node.children).sort((a, b) => {
+                if (a.isFile === b.isFile) return a.name.localeCompare(b.name);
+                return a.isFile ? 1 : -1;
+            });
+
+            items.forEach(item => {
+                const nodeDiv = document.createElement('div');
+                nodeDiv.className = 'tree-node' + (item.isFile ? '' : ' folder');
+                
+                // 添加图标
+                const icon = document.createElement('i');
+                if (item.isFile) {
+                    icon.className = 'fas fa-file';
+                    // 根据文件扩展名设置不同的图标
+                    const ext = item.name.split('.').pop().toLowerCase();
+                    switch(ext) {
+                        case 'java':
+                            icon.className = 'fab fa-java';
+                            break;
+                        case 'py':
+                            icon.className = 'fab fa-python';
+                            break;
+                        case 'js':
+                            icon.className = 'fab fa-js';
+                            break;
+                        case 'html':
+                            icon.className = 'fab fa-html5';
+                            break;
+                        case 'css':
+                            icon.className = 'fab fa-css3-alt';
+                            break;
+                        // 可以继续添加更多文件类型
+                    }
+                } else {
+                    nodeDiv.innerHTML = `
+                        <i class="fas fa-folder"></i>
+                        <i class="fas fa-folder-open"></i>
+                    `;
+                }
+                if (item.isFile) {
+                    nodeDiv.appendChild(icon);
+                }
+                
+                // 添加文件名
+                const content = document.createElement('span');
+                content.className = 'node-content';
+                content.textContent = item.name;
+                nodeDiv.appendChild(content);
+                
+                container.appendChild(nodeDiv);
+                
+                if (!item.isFile) {
+                    const childrenDiv = document.createElement('div');
+                    childrenDiv.className = 'tree-children';
+                    container.appendChild(childrenDiv);
+                    
+                    // 添加文件夹点击展开/折叠事件
+                    nodeDiv.onclick = (e) => {
+                        e.stopPropagation();
+                        nodeDiv.classList.toggle('expanded');
+                        childrenDiv.classList.toggle('expanded');
+                    };
+                    
+                    renderFileTree(item, childrenDiv, level + 1);
+                } else {
+                    nodeDiv.onclick = () => showFileContent(item.path);
+                }
+            });
+        }
+
+        // 显示文件内容
+        async function showFileContent(path) {
+            const fileTree = document.getElementById('file-tree');
+            const fileContent = document.getElementById('file-content');
+            const backButton = document.querySelector('.back-button');
+            
+            try {
+                const response = await fetch(path);
+                const content = await response.text();
+                
+                const pre = document.createElement('pre');
+                pre.textContent = content;
+                
+                fileContent.innerHTML = '';
+                fileContent.appendChild(pre);
+                
+                fileTree.style.display = 'none';
+                fileContent.style.display = 'block';
+                backButton.style.display = 'flex';
+                
+                // 高亮当前文件在文件树中的节点
+                document.querySelectorAll('.tree-node').forEach(node => {
+                    node.classList.remove('active');
+                    if (node.querySelector('.node-content').textContent === path.split('/').pop()) {
+                        node.classList.add('active');
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading file:', error);
+                fileContent.innerHTML = `
+                    <div style="padding: 16px; color: #f44336;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Error loading file: ${path}
+                    </div>
+                `;
+            }
+        }
+
+        // 返回文件树视图
+        document.querySelector('.back-button').onclick = () => {
+            document.getElementById('file-tree').style.display = 'block';
+            document.getElementById('file-content').style.display = 'none';
+            document.querySelector('.back-button').style.display = 'none';
+        };
+
+        // 初始化文件树
+        const fileTree = createFileTree(data.nodes);
+        renderFileTree(fileTree, document.getElementById('file-tree'));
+
         /* 创建SVG */
-        const width = window.innerWidth;
+        const width = document.getElementById('graph').offsetWidth;
         const height = window.innerHeight;
         const svg = d3.select("#graph")
             .append("svg")
@@ -473,84 +782,74 @@ def save_d3_visualization(repo_root, G, communities=None, output_file_name=None)
                 .on("start", dragstarted)
                 .on("drag", dragged)
                 .on("end", dragended));
-                
+
         /* 添加节点圆圈 */
         node.append("circle")
             .attr("r", d => d.radius)
             .attr("fill", d => d.color)
             .attr("stroke", "#fff")
             .attr("stroke-width", 1.5);
-            
+
         /* 添加节点标签 */
         node.append("text")
             .text(d => d.name)
-            .attr("dy", d => d.radius * 2.5 + 5)  /* 增加标签与节点的距离 */
-            .attr("text-anchor", "middle")
-            .style("font-size", d => Math.max(10, Math.min(d.radius * 0.8, 14)) + "px")
-            .each(function(d) {  /* 检测并避免标签重叠 */
-                const bbox = this.getBBox();
-                d.labelHeight = bbox.height;
-                d.labelWidth = bbox.width;
-            });
-            
-        /* 设置初始缩放以适应屏幕 */
-        const bounds = container.node().getBBox();
-        const padding = 50;  /* 添加边距 */
-        const scale = Math.min(
-            (width - padding * 2) / bounds.width,
-            (height - padding * 2) / bounds.height
-        ) * 0.95;  /* 留出更多边距 */
-        
-        /* 计算平移距离，确保图形居中 */
-        const tx = (width - bounds.width * scale) / 2 - bounds.x * scale;
-        const ty = (height - bounds.height * scale) / 2 - bounds.y * scale;
-        
-        /* 立即应用变换，不使用动画 */
-        container.attr("transform", `translate(${tx},${ty})scale(${scale})`);
-        
-        /* 更新力导向图的alpha值以确保布局稳定 */
-        simulation.alpha(0.3).restart();
-        
-        /* 在tick事件中处理标签位置，避免重叠 */
-        simulation.on("tick", () => {
-            link
-                .attr("x1", d => d.source.x)
-                .attr("y1", d => d.source.y)
-                .attr("x2", d => d.target.x)
-                .attr("y2", d => d.target.y);
-                
-            node.attr("transform", d => `translate(${d.x},${d.y})`);
-            
-            /* 标签碰撞检测和调整 */
-            const labels = node.selectAll("text");
-            labels.each(function(d1) {
-                labels.each(function(d2) {
-                    if (d1.id !== d2.id) {
-                        const dx = d1.x - d2.x;
-                        const dy = d1.y - d2.y;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-                        const minDist = (d1.labelHeight + d2.labelHeight) / 2 + 10;
-                        
-                        if (dist < minDist) {
-                            const angle = Math.atan2(dy, dx);
-                            const moveDistance = (minDist - dist) / 2;
-                            
-                            d1.y += Math.sin(angle) * moveDistance;
-                            d2.y -= Math.sin(angle) * moveDistance;
-                        }
-                    }
-                });
-            });
-        });
-        
+            .attr("x", 0)
+            .attr("y", d => -d.radius - 5);
+
         /* 添加提示框 */
-        const tooltip = d3.select("body")
-            .append("div")
+        const tooltip = d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("opacity", 0);
+
+        // 在文件树中定位到指定文件
+        function locateFile(fullPath) {
+            const parts = fullPath.split('/');
+            let currentNode = null;
+            let currentPath = '';
             
+            // 展开所有父文件夹
+            for (let i = 0; i < parts.length; i++) {
+                currentPath += (i === 0 ? '' : '/') + parts[i];
+                const treeNodes = document.querySelectorAll('.tree-node');
+                
+                for (const node of treeNodes) {
+                    const content = node.querySelector('.node-content');
+                    if (content && content.textContent === parts[i]) {
+                        currentNode = node;
+                        // 如果是文件夹且未展开，则展开它
+                        if (i < parts.length - 1 && !node.classList.contains('expanded')) {
+                            node.click();
+                        }
+                        break;
+                    }
+                }
+            }
+            
+            // 如果找到了目标文件节点
+            if (currentNode) {
+                // 滚动到该节点
+                currentNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // 触发点击事件以显示文件内容
+                currentNode.click();
+            }
+        }
+
         /* 节点交互 */
-        node.on("mouseover", (event, d) => {
+        node.on("click", (event, d) => {
+                event.stopPropagation(); // 阻止事件冒泡
+                
+                // 清除之前的选中状态
+                node.selectAll("circle").classed("selected", false);
+                node.selectAll("text").classed("selected", false);
+                
+                // 添加新的选中状态
+                const clickedNode = d3.select(event.currentTarget);
+                clickedNode.select("circle").classed("selected", true);
+                clickedNode.select("text").classed("selected", true);
+                
+                locateFile(d.full_name);
+            })
+            .on("mouseover", (event, d) => {
                 tooltip.transition()
                     .duration(200)
                     .style("opacity", .9);
@@ -576,34 +875,48 @@ def save_d3_visualization(repo_root, G, communities=None, output_file_name=None)
                     .duration(500)
                     .style("opacity", 0);
             });
-            
+
+        /* 模拟tick事件 */
+        simulation.on("tick", () => {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            node.attr("transform", d => `translate(${d.x},${d.y})`);
+        });
+
         /* 拖拽函数 */
         function dragstarted(event) {
             if (!event.active) simulation.alphaTarget(0.3).restart();
             event.subject.fx = event.subject.x;
             event.subject.fy = event.subject.y;
         }
-        
+
         function dragged(event) {
             event.subject.fx = event.x;
             event.subject.fy = event.y;
         }
-        
+
         function dragended(event) {
             if (!event.active) simulation.alphaTarget(0);
             event.subject.fx = null;
             event.subject.fy = null;
         }
+
+        // 处理窗口大小变化
+        window.addEventListener('resize', () => {
+            const newWidth = document.getElementById('graph').offsetWidth;
+            svg.attr("width", newWidth);
+            simulation.force("center", d3.forceCenter(newWidth / 2, height / 2))
+                .alpha(0.3)
+                .restart();
+        });
     </script>
 </body>
-</html>
-'''
-    
-    # 将图数据插入模板
-    html_content = html_template.replace("$DATA", json.dumps(graph_data))
-    
-    # 保存HTML文件
-    with open(output_file_path, "w") as f:
-        f.write(html_content)
-        
-    print(f"AI generated dos are saved to: {output_file_path}")
+</html>'''
+
+    # 写入HTML文件
+    with open(output_file_path, 'w', encoding='utf-8') as f:
+        f.write(html_template)
