@@ -326,19 +326,18 @@ def generate_project_summary(repo_root, community_infos, lang='zh'):
     # 准备模块描述信息
     module_descriptions = []
     for community_id, info in community_infos.items():
-        module_descriptions.append(f"- {info.description}")
+        if info.description:
+            module_descriptions.append(f"- {info.description}")
     
     # 构建提示语
     prompt = PROMPTS["project_summary"][lang]
     content = f"""
 项目名称：{project_name}
-
-README内容：
-{readme_content}
-
-模块描述：
-{'\n'.join(module_descriptions)}
 """
+    if readme_content:
+        content += f"\nREADME内容：\n{readme_content}"
+    if module_descriptions:
+        content += f"\n模块描述：\n{chr(10).join(module_descriptions)}"
     
     try:
         # 调用DeepSeek生成项目总结
@@ -346,7 +345,7 @@ README内容：
         response = client.chat.completions.create(
             model="deepseek-chat",
             messages=[
-                {"role": "system", "content": PROMPTS["system"][lang]},
+                {"role": "system", "content": PROMPTS["system_prompt"][lang]},
                 {"role": "user", "content": f"{prompt}\n\n{content}"},
             ],
             max_tokens=1000,  # 允许更长的总结
