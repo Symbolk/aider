@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Code Dependencies Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 添加禁用文本选择的样式类 */
+        .no-select {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        body { margin: 0; display: flex; }
+        #sidebar { 
+            width: 300px; 
+            height: 100vh; 
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            flex-shrink: 0;
+        }
+        #resizer {
+            width: 8px;
+            height: 100vh;
+            background: #f0f0f0;
+            cursor: col-resize;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        #resizer:hover, #resizer.active {
+            background: #1a73e8;
+        }
+        #file-tree {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        #file-tree::-webkit-scrollbar {
+            width: 8px;
+        }
+        #file-tree::-webkit-scrollbar-track {
+            background: #f5f5f5;
+        }
+        #file-tree::-webkit-scrollbar-thumb {
+            background: #cdcdcd;
+            border-radius: 4px;
+        }
+        #file-tree::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        #file-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: none;
+            background: white;
+            color: #333;
+        }
+        #graph { 
+            flex: 1;
+            height: 100vh;
+            background: white;
+            overflow: hidden;
+        }
+        .tree-node {
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            white-space: nowrap;
+            transition: all 0.1s ease;
+            color: #444;
+            border: 1px solid transparent;
+        }
+        .tree-node:hover {
+            background: #f0f0f0;
+            border: 1px solid #e0e0e0;
+        }
+        .tree-node.active {
+            background: #e8f0fe;
+            border: 1px solid #cce0ff;
+            color: #1a73e8;
+        }
+        .tree-node i {
+            font-size: 14px;
+            width: 16px;
+            text-align: center;
+        }
+        .tree-node i.fa-folder {
+            color: #ffd04c;  /* 更鲜艳的文件夹黄色 */
+        }
+        .tree-node i.fa-folder-open {
+            color: #ffba00;  /* 打开状态的文件夹颜色 */
+        }
+        .tree-node i.fa-file {
+            color: #42a5f5;  /* 默认文件图标使用蓝色 */
+        }
+        .tree-node i.fa-java {
+            color: #f89820;  /* Java文件图标使用橙色 */
+        }
+        .tree-node i.fa-python {
+            color: #3776ab;  /* Python文件图标使用蓝色 */
+        }
+        .tree-node i.fa-js {
+            color: #f7df1e;  /* JavaScript文件图标使用黄色 */
+        }
+        .tree-node i.fa-html5 {
+            color: #e34f26;  /* HTML文件图标使用红色 */
+        }
+        .tree-node i.fa-css3-alt {
+            color: #1572b6;  /* CSS文件图标使用蓝色 */
+        }
+        .tree-node.folder i.fa-folder-open {
+            display: none;
+        }
+        .tree-node.folder.expanded i.fa-folder {
+            display: none;
+        }
+        .tree-node.folder.expanded i.fa-folder-open {
+            display: inline;
+        }
+        .tree-node .node-content {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .tree-children {
+            margin-left: 12px;
+            display: none;
+            border-left: 1px solid #e6e6e6;
+            margin-top: 4px;
+            margin-bottom: 4px;
+            padding-left: 8px;
+        }
+        .tree-children.expanded {
+            display: block;
+        }
+        pre {
+            margin: 0;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            border: 1px solid #e9ecef;
+        }
+        .back-button {
+            padding: 8px 12px;
+            margin: 10px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #495057;
+            display: none;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            align-items: center;
+            gap: 6px;
+        }
+        .back-button:hover {
+            background: #e9ecef;
+            border-color: #ced4da;
+            color: #212529;
+        }
+        .back-button i {
+            font-size: 12px;
+        }
+        .node { cursor: pointer; }
+        .node text { 
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            fill: #333;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+        .link { 
+            stroke: #999; 
+            stroke-opacity: 0.6; 
+        }
+        .tooltip {
+            position: absolute;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 6px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            pointer-events: none;
+            max-width: 400px;
+            word-wrap: break-word;
+            white-space: normal;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            line-height: 1.4;
+        }
+        .tooltip h4 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            border-bottom: 1px solid #666;
+            padding-bottom: 5px;
+        }
+        .tooltip .path {
+            word-break: break-all;
+            margin-bottom: 8px;
+        }
+        .tooltip .description {
+            font-style: italic;
+            color: #ccc;
+            margin-top: 8px;
+        }
+        /* 添加节点选中效果 */
+        .node circle.selected {
+            stroke: #1a73e8;
+            stroke-width: 2px;
+            filter: drop-shadow(0 0 3px rgba(26, 115, 232, 0.4));
+        }
+        .node text.selected {
+            fill: #1a73e8;
+            font-weight: bold;
+        }
+        /* 添加文件树高亮效果 */
+        .tree-node.highlighted {
+            background: #e8f0fe;
+            border: 1px solid #cce0ff;
+            color: #1a73e8;
+            font-weight: 500;
+        }
+        .tree-node.highlighted i {
+            color: #1a73e8;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <button class="back-button"><i class="fas fa-arrow-left"></i>返回文件树</button>
+        <div id="file-tree"></div>
+        <div id="file-content"></div>
+    </div>
+    <div id="resizer"></div>
+    <div id="graph"></div>
+    <script>
+        const data = {"nodes": [{"id": 0, "name": "MyOrderController.java", "full_name": "src/main/java/com/mall4j/cloud/order/controller/app/MyOrderController.java", "type": "file", "community_id": 0, "color": "#E41A1C", "degree": 140, "radius": 35.4964786985977, "description": "", "community_description": ""}, {"id": 1, "name": "Order.java", "full_name": "src/main/java/com/mall4j/cloud/order/model/Order.java", "type": "file", "community_id": 0, "color": "#E41A1C", "degree": 94, "radius": 29.086079144497976, "description": "", "community_description": ""}, {"id": 2, "name": "OrderVO.java", "full_name": "src/main/java/com/mall4j/cloud/order/vo/OrderVO.java", "type": "file", "community_id": 0, "color": "#E41A1C", "degree": 85, "radius": 27.65863337187866, "description": "", "community_description": ""}, {"id": 3, "name": "OrderShopVO.java", "full_name": "src/main/java/com/mall4j/cloud/order/vo/OrderShopVO.java", "type": "file", "community_id": 0, "color": "#E41A1C", "degree": 74, "radius": 25.80697580112788, "description": "", "community_description": ""}, {"id": 4, "name": "OrderController.java", "full_name": "src/main/java/com/mall4j/cloud/order/controller/app/OrderController.java", "type": "file", "community_id": 4, "color": "#377EB8", "degree": 90, "radius": 28.460498941515414, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u76f8\u5173\u7684\u64cd\u4f5c\uff0c\u5305\u62ec\u751f\u6210\u8ba2\u5355\u3001\u63d0\u4ea4\u8ba2\u5355\u548c\u83b7\u53d6\u8ba2\u5355\u652f\u4ed8\u4fe1\u606f\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u751f\u6210\u3001\u63d0\u4ea4\u3001\u652f\u4ed8\u53ca\u7edf\u8ba1\u7b49\u5168\u6d41\u7a0b\u64cd\u4f5c\u3002"}, {"id": 5, "name": "OrderServiceImpl.java", "full_name": "src/main/java/com/mall4j/cloud/order/service/impl/OrderServiceImpl.java", "type": "file", "community_id": 3, "color": "#4DAF4A", "degree": 307, "radius": 52.5642464038057, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9e\u73b0\u8ba2\u5355\u670d\u52a1\uff0c\u5305\u62ec\u8ba2\u5355\u7684\u521b\u5efa\u3001\u66f4\u65b0\u3001\u53d6\u6d88\u3001\u652f\u4ed8\u72b6\u6001\u7ba1\u7406\u7b49\u529f\u80fd\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u521b\u5efa\u3001\u66f4\u65b0\u3001\u53d6\u6d88\u53ca\u652f\u4ed8\u72b6\u6001\u7ba1\u7406\u7b49\u6838\u5fc3\u529f\u80fd\u3002"}, {"id": 6, "name": "OrderMapper.java", "full_name": "src/main/java/com/mall4j/cloud/order/mapper/OrderMapper.java", "type": "file", "community_id": 2, "color": "#984EA3", "degree": 148, "radius": 36.49657518178932, "description": "", "community_description": ""}, {"id": 7, "name": "OrderAddrMapper.java", "full_name": "src/main/java/com/mall4j/cloud/order/mapper/OrderAddrMapper.java", "type": "file", "community_id": 1, "color": "#FF7F00", "degree": 82, "radius": 27.166155414412252, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u7ba1\u7406\u8ba2\u5355\u914d\u9001\u5730\u5740\u7684\u6570\u636e\u5e93\u64cd\u4f5c\uff0c\u5305\u62ec\u67e5\u8be2\u3001\u4fdd\u5b58\u3001\u66f4\u65b0\u548c\u5220\u9664\u529f\u80fd\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u5168\u751f\u547d\u5468\u671f\u64cd\u4f5c\uff0c\u5305\u62ec\u652f\u4ed8\u8bb0\u5f55\u3001\u914d\u9001\u5730\u5740\u3001\u8ba2\u5355\u9879\u7684\u7ba1\u7406\u548c\u6570\u636e\u5e93\u64cd\u4f5c\u3002"}, {"id": 8, "name": "OrderAddrServiceImpl.java", "full_name": "src/main/java/com/mall4j/cloud/order/service/impl/OrderAddrServiceImpl.java", "type": "file", "community_id": 1, "color": "#FF7F00", "degree": 79, "radius": 26.664583251946766, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u7ba1\u7406\u8ba2\u5355\u914d\u9001\u5730\u5740\u7684\u76f8\u5173\u670d\u52a1\u64cd\u4f5c\uff0c\u5305\u62ec\u4fdd\u5b58\u3001\u66f4\u65b0\u548c\u5220\u9664\u529f\u80fd\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u5168\u751f\u547d\u5468\u671f\u64cd\u4f5c\uff0c\u5305\u62ec\u652f\u4ed8\u8bb0\u5f55\u3001\u914d\u9001\u5730\u5740\u3001\u8ba2\u5355\u9879\u7684\u7ba1\u7406\u548c\u6570\u636e\u5e93\u64cd\u4f5c\u3002"}, {"id": 9, "name": "MyOrderItemVO.java", "full_name": "src/main/java/com/mall4j/cloud/order/vo/MyOrderItemVO.java", "type": "file", "community_id": 3, "color": "#4DAF4A", "degree": 129, "radius": 34.07345007480164, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9a\u4e49\u548c\u5b9e\u73b0\u8ba2\u5355\u670d\u52a1\uff0c\u5305\u62ec\u8ba2\u5355\u7684\u521b\u5efa\u3001\u66f4\u65b0\u3001\u53d6\u6d88\u3001\u652f\u4ed8\u72b6\u6001\u7ba1\u7406\u7b49\u529f\u80fd\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u521b\u5efa\u3001\u66f4\u65b0\u3001\u53d6\u6d88\u53ca\u652f\u4ed8\u72b6\u6001\u7ba1\u7406\u7b49\u6838\u5fc3\u529f\u80fd\u3002"}, {"id": 10, "name": "OrderItemVO.java", "full_name": "src/main/java/com/mall4j/cloud/order/vo/OrderItemVO.java", "type": "file", "community_id": 3, "color": "#4DAF4A", "degree": 68, "radius": 24.73863375370596, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9a\u4e49\u8ba2\u5355\u9879\u7684\u6570\u636e\u7ed3\u6784\u53ca\u5176\u76f8\u5173\u64cd\u4f5c\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u521b\u5efa\u3001\u66f4\u65b0\u3001\u53d6\u6d88\u53ca\u652f\u4ed8\u72b6\u6001\u7ba1\u7406\u7b49\u6838\u5fc3\u529f\u80fd\u3002"}, {"id": 11, "name": "OrderItem.java", "full_name": "src/main/java/com/mall4j/cloud/order/model/OrderItem.java", "type": "file", "community_id": 3, "color": "#4DAF4A", "degree": 71, "radius": 25.278449319529077, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9a\u4e49\u8ba2\u5355\u9879\u7684\u6570\u636e\u6a21\u578b\uff0c\u5305\u542b\u8ba2\u5355\u9879\u7684\u57fa\u672c\u4fe1\u606f\u548c\u76f8\u5173\u5c5e\u6027\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u521b\u5efa\u3001\u66f4\u65b0\u3001\u53d6\u6d88\u53ca\u652f\u4ed8\u72b6\u6001\u7ba1\u7406\u7b49\u6838\u5fc3\u529f\u80fd\u3002"}, {"id": 12, "name": "OrderFeignController.java", "full_name": "src/main/java/com/mall4j/cloud/order/feign/OrderFeignController.java", "type": "file", "community_id": 0, "color": "#E41A1C", "degree": 31, "radius": 16.703293088490064, "description": "", "community_description": ""}, {"id": 13, "name": "OrderService.java", "full_name": "src/main/java/com/mall4j/cloud/order/service/OrderService.java", "type": "file", "community_id": 2, "color": "#984EA3", "degree": 153, "radius": 37.107950630558946, "description": "", "community_description": ""}, {"id": 14, "name": "OrderAdminDTO.java", "full_name": "src/main/java/com/mall4j/cloud/order/dto/multishop/OrderAdminDTO.java", "type": "file", "community_id": 0, "color": "#E41A1C", "degree": 86, "radius": 27.820855486487112, "description": "", "community_description": ""}, {"id": 15, "name": "MyOrderVO.java", "full_name": "src/main/java/com/mall4j/cloud/order/vo/MyOrderVO.java", "type": "file", "community_id": 0, "color": "#E41A1C", "degree": 170, "radius": 39.1152144312159, "description": "", "community_description": ""}, {"id": 16, "name": "OrderController.java", "full_name": "src/main/java/com/mall4j/cloud/order/controller/multishop/OrderController.java", "type": "file", "community_id": 1, "color": "#FF7F00", "degree": 40, "radius": 18.973665961010276, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u7ba1\u7406\u591a\u5546\u6237\u5e73\u53f0\u4e2d\u7684\u8ba2\u5355\u76f8\u5173\u64cd\u4f5c\uff0c\u5305\u62ec\u8ba2\u5355\u67e5\u8be2\u3001\u53d1\u8d27\u7b49\u529f\u80fd\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u5168\u751f\u547d\u5468\u671f\u64cd\u4f5c\uff0c\u5305\u62ec\u652f\u4ed8\u8bb0\u5f55\u3001\u914d\u9001\u5730\u5740\u3001\u8ba2\u5355\u9879\u7684\u7ba1\u7406\u548c\u6570\u636e\u5e93\u64cd\u4f5c\u3002"}, {"id": 17, "name": "OrderCountVO.java", "full_name": "src/main/java/com/mall4j/cloud/order/vo/OrderCountVO.java", "type": "file", "community_id": 4, "color": "#377EB8", "degree": 58, "radius": 22.847319317591726, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9a\u4e49\u548c\u5c55\u793a\u7528\u6237\u8ba2\u5355\u6570\u91cf\u7684\u7edf\u8ba1\u4fe1\u606f\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u751f\u6210\u3001\u63d0\u4ea4\u3001\u652f\u4ed8\u53ca\u7edf\u8ba1\u7b49\u5168\u6d41\u7a0b\u64cd\u4f5c\u3002"}, {"id": 18, "name": "OrderItemDTO.java", "full_name": "src/main/java/com/mall4j/cloud/order/dto/multishop/OrderItemDTO.java", "type": "file", "community_id": 4, "color": "#377EB8", "degree": 9, "radius": 9.0, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9a\u4e49\u548c\u5904\u7406\u8ba2\u5355\u9879\u7684\u6570\u636e\u4f20\u8f93\u5bf9\u8c61\uff08DTO\uff09\uff0c\u5305\u62ec\u8ba2\u5355\u9879ID\u548c\u53d8\u5316\u91d1\u989d\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u751f\u6210\u3001\u63d0\u4ea4\u3001\u652f\u4ed8\u53ca\u7edf\u8ba1\u7b49\u5168\u6d41\u7a0b\u64cd\u4f5c\u3002"}, {"id": 19, "name": "OrderItemService.java", "full_name": "src/main/java/com/mall4j/cloud/order/service/OrderItemService.java", "type": "file", "community_id": 1, "color": "#FF7F00", "degree": 100, "radius": 30.0, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9e\u73b0\u8ba2\u5355\u9879\u7684\u76f8\u5173\u670d\u52a1\u64cd\u4f5c\uff0c\u5305\u62ec\u4fdd\u5b58\u3001\u66f4\u65b0\u3001\u5220\u9664\u548c\u6279\u91cf\u5904\u7406\u529f\u80fd\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u5168\u751f\u547d\u5468\u671f\u64cd\u4f5c\uff0c\u5305\u62ec\u652f\u4ed8\u8bb0\u5f55\u3001\u914d\u9001\u5730\u5740\u3001\u8ba2\u5355\u9879\u7684\u7ba1\u7406\u548c\u6570\u636e\u5e93\u64cd\u4f5c\u3002"}, {"id": 20, "name": "OrderItemServiceImpl.java", "full_name": "src/main/java/com/mall4j/cloud/order/service/impl/OrderItemServiceImpl.java", "type": "file", "community_id": 1, "color": "#FF7F00", "degree": 97, "radius": 29.546573405388312, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9e\u73b0\u8ba2\u5355\u9879\u7684\u76f8\u5173\u670d\u52a1\u64cd\u4f5c\uff0c\u5305\u62ec\u4fdd\u5b58\u3001\u66f4\u65b0\u3001\u5220\u9664\u548c\u6279\u91cf\u5904\u7406\u529f\u80fd\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u5168\u751f\u547d\u5468\u671f\u64cd\u4f5c\uff0c\u5305\u62ec\u652f\u4ed8\u8bb0\u5f55\u3001\u914d\u9001\u5730\u5740\u3001\u8ba2\u5355\u9879\u7684\u7ba1\u7406\u548c\u6570\u636e\u5e93\u64cd\u4f5c\u3002"}, {"id": 21, "name": "OrderItemMapper.java", "full_name": "src/main/java/com/mall4j/cloud/order/mapper/OrderItemMapper.java", "type": "file", "community_id": 1, "color": "#FF7F00", "degree": 99, "radius": 29.849623113198597, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9e\u73b0\u8ba2\u5355\u9879\u7684\u76f8\u5173\u670d\u52a1\u64cd\u4f5c\uff0c\u5305\u62ec\u4fdd\u5b58\u3001\u66f4\u65b0\u3001\u5220\u9664\u548c\u6279\u91cf\u5904\u7406\u529f\u80fd\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u5168\u751f\u547d\u5468\u671f\u64cd\u4f5c\uff0c\u5305\u62ec\u652f\u4ed8\u8bb0\u5f55\u3001\u914d\u9001\u5730\u5740\u3001\u8ba2\u5355\u9879\u7684\u7ba1\u7406\u548c\u6570\u636e\u5e93\u64cd\u4f5c\u3002"}, {"id": 22, "name": "SubmitOrderPayAmountInfoBO.java", "full_name": "src/main/java/com/mall4j/cloud/order/bo/SubmitOrderPayAmountInfoBO.java", "type": "file", "community_id": 4, "color": "#377EB8", "degree": 67, "radius": 24.55605831561735, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9a\u4e49\u548c\u5904\u7406\u63d0\u4ea4\u8ba2\u5355\u65f6\u7684\u652f\u4ed8\u91d1\u989d\u4fe1\u606f\uff0c\u5305\u62ec\u603b\u91d1\u989d\u3001\u521b\u5efa\u65f6\u95f4\u548c\u8ba2\u5355\u5730\u5740ID\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u751f\u6210\u3001\u63d0\u4ea4\u3001\u652f\u4ed8\u53ca\u7edf\u8ba1\u7b49\u5168\u6d41\u7a0b\u64cd\u4f5c\u3002"}, {"id": 23, "name": "OrderPayInfoVO.java", "full_name": "src/main/java/com/mall4j/cloud/order/vo/OrderPayInfoVO.java", "type": "file", "community_id": 4, "color": "#377EB8", "degree": 12, "radius": 10.392304845413264, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9a\u4e49\u548c\u5c55\u793a\u8ba2\u5355\u652f\u4ed8\u8bb0\u5f55\u7684\u76f8\u5173\u4fe1\u606f\uff0c\u5305\u62ec\u652f\u4ed8\u5355\u53f7\u3001\u7528\u6237ID\u3001\u652f\u4ed8\u72b6\u6001\u3001\u652f\u4ed8\u91d1\u989d\u7b49\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u751f\u6210\u3001\u63d0\u4ea4\u3001\u652f\u4ed8\u53ca\u7edf\u8ba1\u7b49\u5168\u6d41\u7a0b\u64cd\u4f5c\u3002"}, {"id": 24, "name": "OrderPayInfo.java", "full_name": "src/main/java/com/mall4j/cloud/order/model/OrderPayInfo.java", "type": "file", "community_id": 4, "color": "#377EB8", "degree": 14, "radius": 11.224972160321824, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9a\u4e49\u548c\u5904\u7406\u8ba2\u5355\u652f\u4ed8\u8bb0\u5f55\u7684\u76f8\u5173\u4fe1\u606f\uff0c\u5305\u62ec\u652f\u4ed8\u72b6\u6001\u3001\u652f\u4ed8\u91d1\u989d\u3001\u56de\u8c03\u5185\u5bb9\u7b49\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u751f\u6210\u3001\u63d0\u4ea4\u3001\u652f\u4ed8\u53ca\u7edf\u8ba1\u7b49\u5168\u6d41\u7a0b\u64cd\u4f5c\u3002"}, {"id": 25, "name": "OrderAddrVO.java", "full_name": "src/main/java/com/mall4j/cloud/order/vo/OrderAddrVO.java", "type": "file", "community_id": 4, "color": "#377EB8", "degree": 31, "radius": 16.703293088490064, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9a\u4e49\u548c\u5c55\u793a\u7528\u6237\u8ba2\u5355\u914d\u9001\u5730\u5740\u7684\u76f8\u5173\u4fe1\u606f\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u751f\u6210\u3001\u63d0\u4ea4\u3001\u652f\u4ed8\u53ca\u7edf\u8ba1\u7b49\u5168\u6d41\u7a0b\u64cd\u4f5c\u3002"}, {"id": 26, "name": "OrderAddr.java", "full_name": "src/main/java/com/mall4j/cloud/order/model/OrderAddr.java", "type": "file", "community_id": 1, "color": "#FF7F00", "degree": 33, "radius": 17.233687939614086, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9a\u4e49\u548c\u7ba1\u7406\u7528\u6237\u8ba2\u5355\u914d\u9001\u5730\u5740\u7684\u6570\u636e\u5e93\u6a21\u578b\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u5168\u751f\u547d\u5468\u671f\u64cd\u4f5c\uff0c\u5305\u62ec\u652f\u4ed8\u8bb0\u5f55\u3001\u914d\u9001\u5730\u5740\u3001\u8ba2\u5355\u9879\u7684\u7ba1\u7406\u548c\u6570\u636e\u5e93\u64cd\u4f5c\u3002"}, {"id": 27, "name": "SubmitOrderPayInfoVO.java", "full_name": "src/main/java/com/mall4j/cloud/order/vo/SubmitOrderPayInfoVO.java", "type": "file", "community_id": 4, "color": "#377EB8", "degree": 73, "radius": 25.63201123595259, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9a\u4e49\u548c\u5c55\u793a\u63d0\u4ea4\u8ba2\u5355\u65f6\u7684\u652f\u4ed8\u4fe1\u606f\uff0c\u5305\u62ec\u5546\u54c1\u540d\u79f0\u3001\u6536\u8d27\u4eba\u4fe1\u606f\u3001\u8ba2\u5355\u91d1\u989d\u7b49\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u751f\u6210\u3001\u63d0\u4ea4\u3001\u652f\u4ed8\u53ca\u7edf\u8ba1\u7b49\u5168\u6d41\u7a0b\u64cd\u4f5c\u3002"}, {"id": 28, "name": "OrderPayInfoService.java", "full_name": "src/main/java/com/mall4j/cloud/order/service/OrderPayInfoService.java", "type": "file", "community_id": 1, "color": "#FF7F00", "degree": 71, "radius": 25.278449319529077, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9e\u73b0\u8ba2\u5355\u652f\u4ed8\u8bb0\u5f55\u7684\u76f8\u5173\u670d\u52a1\u64cd\u4f5c\uff0c\u5305\u62ec\u4fdd\u5b58\u3001\u66f4\u65b0\u548c\u5220\u9664\u529f\u80fd\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u5168\u751f\u547d\u5468\u671f\u64cd\u4f5c\uff0c\u5305\u62ec\u652f\u4ed8\u8bb0\u5f55\u3001\u914d\u9001\u5730\u5740\u3001\u8ba2\u5355\u9879\u7684\u7ba1\u7406\u548c\u6570\u636e\u5e93\u64cd\u4f5c\u3002"}, {"id": 29, "name": "OrderPayInfoMapper.java", "full_name": "src/main/java/com/mall4j/cloud/order/mapper/OrderPayInfoMapper.java", "type": "file", "community_id": 1, "color": "#FF7F00", "degree": 70, "radius": 25.099800796022265, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9e\u73b0\u8ba2\u5355\u652f\u4ed8\u8bb0\u5f55\u7684\u76f8\u5173\u670d\u52a1\u64cd\u4f5c\uff0c\u5305\u62ec\u4fdd\u5b58\u3001\u66f4\u65b0\u548c\u5220\u9664\u529f\u80fd\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u5168\u751f\u547d\u5468\u671f\u64cd\u4f5c\uff0c\u5305\u62ec\u652f\u4ed8\u8bb0\u5f55\u3001\u914d\u9001\u5730\u5740\u3001\u8ba2\u5355\u9879\u7684\u7ba1\u7406\u548c\u6570\u636e\u5e93\u64cd\u4f5c\u3002"}, {"id": 30, "name": "OrderAddrService.java", "full_name": "src/main/java/com/mall4j/cloud/order/service/OrderAddrService.java", "type": "file", "community_id": 1, "color": "#FF7F00", "degree": 84, "radius": 27.49545416973504, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u7ba1\u7406\u8ba2\u5355\u914d\u9001\u5730\u5740\u7684\u76f8\u5173\u670d\u52a1\u64cd\u4f5c\uff0c\u5305\u62ec\u4fdd\u5b58\u3001\u66f4\u65b0\u548c\u5220\u9664\u529f\u80fd\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u5168\u751f\u547d\u5468\u671f\u64cd\u4f5c\uff0c\u5305\u62ec\u652f\u4ed8\u8bb0\u5f55\u3001\u914d\u9001\u5730\u5740\u3001\u8ba2\u5355\u9879\u7684\u7ba1\u7406\u548c\u6570\u636e\u5e93\u64cd\u4f5c\u3002"}, {"id": 31, "name": "OrderPayInfoServiceImpl.java", "full_name": "src/main/java/com/mall4j/cloud/order/service/impl/OrderPayInfoServiceImpl.java", "type": "file", "community_id": 1, "color": "#FF7F00", "degree": 68, "radius": 24.73863375370596, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9e\u73b0\u8ba2\u5355\u652f\u4ed8\u8bb0\u5f55\u7684\u76f8\u5173\u670d\u52a1\u64cd\u4f5c\uff0c\u5305\u62ec\u4fdd\u5b58\u3001\u66f4\u65b0\u548c\u5220\u9664\u529f\u80fd\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u5168\u751f\u547d\u5468\u671f\u64cd\u4f5c\uff0c\u5305\u62ec\u652f\u4ed8\u8bb0\u5f55\u3001\u914d\u9001\u5730\u5740\u3001\u8ba2\u5355\u9879\u7684\u7ba1\u7406\u548c\u6570\u636e\u5e93\u64cd\u4f5c\u3002"}, {"id": 32, "name": "OrderDTO.java", "full_name": "src/main/java/com/mall4j/cloud/order/dto/app/OrderDTO.java", "type": "file", "community_id": 4, "color": "#377EB8", "degree": 47, "radius": 20.56696380120313, "description": "\u6b64\u6587\u4ef6\u7528\u4e8e\u5b9a\u4e49\u548c\u5904\u7406\u63d0\u4ea4\u8ba2\u5355\u65f6\u7684\u6570\u636e\u4f20\u8f93\u5bf9\u8c61\uff08DTO\uff09\uff0c\u5305\u62ec\u8d2d\u7269\u8f66\u5546\u54c1\u9879\u3001\u914d\u9001\u7c7b\u578b\u548c\u5730\u5740\u4fe1\u606f\u3002", "community_description": "\u8be5\u6a21\u5757\u7528\u4e8e\u5904\u7406\u8ba2\u5355\u7684\u751f\u6210\u3001\u63d0\u4ea4\u3001\u652f\u4ed8\u53ca\u7edf\u8ba1\u7b49\u5168\u6d41\u7a0b\u64cd\u4f5c\u3002"}, {"id": 33, "name": "OrderNotifyConsumer.java", "full_name": "src/main/java/com/mall4j/cloud/order/listener/OrderNotifyConsumer.java", "type": "file", "community_id": 2, "color": "#984EA3", "degree": 4, "radius": 8, "description": "", "community_description": ""}, {"id": 34, "name": "OrderCancelConsumer.java", "full_name": "src/main/java/com/mall4j/cloud/order/listener/OrderCancelConsumer.java", "type": "file", "community_id": 2, "color": "#984EA3", "degree": 2, "radius": 8, "description": "", "community_description": ""}], "links": [{"source": 0, "target": 1, "weight": 26.69598735559484, "idents": ["setShopName", "setStatus", "getTotal", "setPayTime", "getDeliveryTime", "getStatus", "getShopName", "setShopId", "getOrderAddrId", "getDeliveryType", "setFinallyTime", "getOrderId", "setOrderItems", "setCancelTime", "getFinallyTime", "getCancelTime", "setTotal", "setDeliveryType", "getShopId", "setUserId", "getAllCount", "setOrderAddr", "getPayTime", "setDeliveryTime", "getUserId"]}, {"source": 0, "target": 2, "weight": 24.336068678229136, "idents": ["setShopName", "setStatus", "getTotal", "setPayTime", "getDeliveryTime", "getStatus", "getShopName", "setShopId", "getDeliveryType", "setFinallyTime", "getOrderId", "setOrderItems", "setCancelTime", "getFinallyTime", "getCancelTime", "setTotal", "setDeliveryType", "getShopId", "setUserId", "getAllCount", "setOrderAddr", "getPayTime", "setDeliveryTime", "getUserId"]}, {"source": 0, "target": 3, "weight": 26.15009679945765, "idents": ["setShopName", "setStatus", "getTotal", "setPayTime", "getDeliveryTime", "getStatus", "getShopName", "setShopId", "getDeliveryType", "setFinallyTime", "setOrderItems", "setCancelTime", "getFinallyTime", "getUpdateTime", "getCancelTime", "setTotal", "setDeliveryType", "getShopId", "setUpdateTime", "OrderShopVO", "setCreateTime", "setOrderAddr", "getCreateTime", "setTotalNum", "getPayTime", "setDeliveryTime"]}, {"source": 0, "target": 10, "weight": 8.76556375573567, "idents": ["setShopId", "getDeliveryType", "setUserId", "getOrderId", "setDeliveryType", "getShopId", "getUserId"]}, {"source": 0, "target": 14, "weight": 3.147202690439877, "idents": ["getOrderId", "getShopId", "setShopId"]}, {"source": 0, "target": 11, "weight": 7.636160063146202, "idents": ["setShopId", "getDeliveryType", "setUserId", "getOrderId", "setDeliveryType", "getShopId", "getUserId"]}, {"source": 0, "target": 15, "weight": 13.719483663303805, "idents": ["setShopName", "setStatus", "getDeliveryType", "getOrderId", "getAllCount", "setCreateTime", "getCreateTime", "getStatus", "getShopName", "setOrderItems", "setDeliveryType", "getShopId", "setShopId"]}, {"source": 0, "target": 6, "weight": 5.0, "idents": ["receiptOrder", "getOrderByOrderIdAndUserId", "countNumberOfStatus", "deleteOrder"]}, {"source": 0, "target": 5, "weight": 5.414213562373095, "idents": ["getOrderByOrderIdAndUserId", "cancelOrderAndGetCancelOrderIds", "deleteOrder", "receiptOrder", "countNumberOfStatus"]}, {"source": 0, "target": 13, "weight": 5.189207115002721, "idents": ["getOrderByOrderIdAndUserId", "cancelOrderAndGetCancelOrderIds", "deleteOrder", "receiptOrder", "countNumberOfStatus"]}, {"source": 0, "target": 22, "weight": 3.0, "idents": ["setCreateTime", "getCreateTime", "getOrderAddrId"]}, {"source": 0, "target": 23, "weight": 2.251033404859074, "idents": ["setUserId", "getUserId"]}, {"source": 0, "target": 24, "weight": 2.1184960459738216, "idents": ["setUserId", "getUserId"]}, {"source": 0, "target": 25, "weight": 3.057589734241885, "idents": ["setUserId", "getOrderAddrId", "getUserId"]}, {"source": 0, "target": 26, "weight": 3.0070236110938784, "idents": ["setUserId", "getOrderAddrId", "getUserId"]}, {"source": 0, "target": 19, "weight": 1.4142135623730951, "idents": ["listOrderItemsByOrderId"]}, {"source": 0, "target": 20, "weight": 1.189207115002721, "idents": ["listOrderItemsByOrderId"]}, {"source": 0, "target": 21, "weight": 1.0905077326652577, "idents": ["listOrderItemsByOrderId"]}, {"source": 0, "target": 30, "weight": 1.0, "idents": ["getByOrderAddrId"]}, {"source": 0, "target": 7, "weight": 1.0, "idents": ["getByOrderAddrId"]}, {"source": 0, "target": 8, "weight": 1.0, "idents": ["getByOrderAddrId"]}, {"source": 0, "target": 9, "weight": 1.7320508075688772, "idents": ["getOrderId"]}, {"source": 0, "target": 17, "weight": 1.0, "idents": ["getAllCount"]}, {"source": 4, "target": 1, "weight": 9.028523525800612, "idents": ["setShopName", "getOrderAddrId", "getTotal", "setTotal", "getShopName", "setShopId", "getShopId", "getUserId"]}, {"source": 4, "target": 2, "weight": 7.383844131118244, "idents": ["setShopName", "getTotal", "setTotal", "getShopName", "setShopId", "getShopId", "getUserId"]}, {"source": 4, "target": 3, "weight": 7.271523197995774, "idents": ["setShopName", "getTotal", "getCreateTime", "setTotal", "getShopName", "getShopId", "setShopId"]}, {"source": 4, "target": 10, "weight": 3.414213562373095, "idents": ["getUserId", "getShopId", "setShopId"]}, {"source": 4, "target": 14, "weight": 4.0, "idents": ["getDvyType", "setDvyType", "getShopId", "setShopId"]}, {"source": 4, "target": 11, "weight": 3.189207115002721, "idents": ["getUserId", "getShopId", "setShopId"]}, {"source": 4, "target": 15, "weight": 5.189207115002721, "idents": ["setShopName", "getCreateTime", "getShopName", "getShopId", "setShopId"]}, {"source": 4, "target": 19, "weight": 1.0, "idents": ["getSpuNameListByOrderIds"]}, {"source": 4, "target": 20, "weight": 1.0, "idents": ["getSpuNameListByOrderIds"]}, {"source": 4, "target": 21, "weight": 1.0, "idents": ["getSpuNameListByOrderIds"]}, {"source": 4, "target": 22, "weight": 4.82842712474619, "idents": ["getCreateTime", "setTotalFee", "getTotalFee", "getOrderAddrId"]}, {"source": 4, "target": 23, "weight": 1.0905077326652577, "idents": ["getUserId"]}, {"source": 4, "target": 24, "weight": 1.0442737824274138, "idents": ["getUserId"]}, {"source": 4, "target": 25, "weight": 10.112404881319375, "idents": ["setMobile", "getOrderAddrId", "getCity", "setConsignee", "getAddr", "getMobile", "getArea", "getConsignee", "getProvince", "getUserId"]}, {"source": 4, "target": 26, "weight": 10.046985057477617, "idents": ["setMobile", "getOrderAddrId", "getCity", "setConsignee", "getAddr", "getMobile", "getArea", "getConsignee", "getProvince", "getUserId"]}, {"source": 4, "target": 27, "weight": 10.414213562373096, "idents": ["setMobile", "setTotalFee", "getConsignee", "setConsignee", "getMobile", "SubmitOrderPayInfoVO", "setEndTime", "setSpuNameList", "getTotalFee", "setUserAddr"]}, {"source": 4, "target": 32, "weight": 4.0, "idents": ["getDvyType", "getAddrId", "setDvyType", "getShopCartItem"]}, {"source": 4, "target": 6, "weight": 1.0, "idents": ["getSubmitOrderPayAmountInfo"]}, {"source": 4, "target": 5, "weight": 2.0, "idents": ["getSubmitOrderPayAmountInfo", "submit"]}, {"source": 4, "target": 13, "weight": 2.0, "idents": ["getSubmitOrderPayAmountInfo", "submit"]}, {"source": 4, "target": 30, "weight": 1.0, "idents": ["getByOrderAddrId"]}, {"source": 4, "target": 7, "weight": 1.0, "idents": ["getByOrderAddrId"]}, {"source": 4, "target": 8, "weight": 1.0, "idents": ["getByOrderAddrId"]}, {"source": 4, "target": 4, "weight": 1.0, "idents": ["recalculateAmountWhenFinishingCalculateShop"]}, {"source": 5, "target": 1, "weight": 23.347494661998685, "idents": ["setShopName", "setStatus", "getTotal", "setDeleteStatus", "getStatus", "getShopName", "setShopId", "setAllCount", "getOrderAddrId", "Order", "getOrderId", "setOrderAddrId", "setOrderId", "getOrderItems", "setOrderItems", "setIsPayed", "setTotal", "setDeliveryType", "getShopId", "setUserId", "setDeliveryTime", "getUserId"]}, {"source": 5, "target": 2, "weight": 19.23318029407288, "idents": ["setShopName", "setStatus", "getTotal", "setDeleteStatus", "getStatus", "getShopName", "setShopId", "setAllCount", "getOrderId", "setOrderId", "getOrderItems", "setOrderItems", "setIsPayed", "setTotal", "setDeliveryType", "getShopId", "setUserId", "setDeliveryTime", "getUserId"]}, {"source": 5, "target": 3, "weight": 14.656168909862991, "idents": ["setShopName", "setStatus", "getTotal", "setUpdateTime", "getCreateTime", "setTotal", "getOrderItems", "getStatus", "setDeliveryTime", "setOrderItems", "getShopName", "setDeliveryType", "getShopId", "setShopId"]}, {"source": 5, "target": 6, "weight": 17.242640687119284, "idents": ["getOrderByOrderIdAndShopId", "cancelOrders", "update", "getOrderByOrderIdAndUserId", "getOrdersSimpleAmountInfo", "saveBatch", "updateByToPaySuccess", "getOrderAndOrderItemData", "getOrdersActualAmount", "deleteOrder", "getEsOrder", "getOrdersStatus", "receiptOrder", "deleteById", "countNumberOfStatus", "getSubmitOrderPayAmountInfo"]}, {"source": 5, "target": 5, "weight": 16.191918390052926, "idents": ["getOrder", "saveOrder", "update", "getOrderByOrderIdAndUserId", "getOrdersSimpleAmountInfo", "updateByToPaySuccess", "getOrderAndOrderItemData", "getOrdersActualAmount", "deleteOrder", "getEsOrder", "getOrdersStatus", "receiptOrder", "deleteById", "countNumberOfStatus", "getSubmitOrderPayAmountInfo", "getOrderItem"]}, {"source": 5, "target": 13, "weight": 14.090846240717939, "idents": ["update", "getOrderByOrderIdAndUserId", "getOrdersSimpleAmountInfo", "updateByToPaySuccess", "getOrderAndOrderItemData", "OrderService", "getOrdersActualAmount", "deleteOrder", "getEsOrder", "getOrdersStatus", "receiptOrder", "deleteById", "countNumberOfStatus", "getSubmitOrderPayAmountInfo"]}, {"source": 5, "target": 12, "weight": 3.044273782427414, "idents": ["getOrdersSimpleAmountInfo", "getEsOrder", "getOrdersStatus"]}, {"source": 5, "target": 10, "weight": 24.61798729932002, "idents": ["getSkuName", "setSpuId", "getSpuId", "setSpuName", "setShopId", "getOrderId", "setSpuTotalAmount", "setOrderId", "getSkuId", "getSpuName", "getCount", "setCount", "setDeliveryType", "getShopId", "setUserId", "setSkuId", "setPrice", "setPic", "setSkuName", "setShopCartTime", "getUserId"]}, {"source": 5, "target": 14, "weight": 5.6212559851923105, "idents": ["getDvyType", "getOrderId", "setOrderId", "getShopId", "setShopId"]}, {"source": 5, "target": 11, "weight": 23.03799650416038, "idents": ["getSkuName", "setSpuId", "getSpuId", "setSpuName", "setShopId", "getOrderId", "setSpuTotalAmount", "setOrderId", "getSkuId", "getSpuName", "getCount", "setCount", "setDeliveryType", "getShopId", "setUserId", "setSkuId", "setPrice", "OrderItem", "setPic", "setSkuName", "setShopCartTime", "getUserId"]}, {"source": 5, "target": 15, "weight": 13.56834582641039, "idents": ["setAllCount", "setShopName", "setStatus", "getOrderId", "setOrderId", "getCreateTime", "getOrderItems", "getStatus", "getShopName", "setOrderItems", "setDeliveryType", "getShopId", "setShopId"]}, {"source": 5, "target": 17, "weight": 1.0, "idents": ["setAllCount"]}, {"source": 5, "target": 9, "weight": 17.692130429902466, "idents": ["getCount", "getOrderId", "setSkuId", "setPrice", "getSkuName", "setPic", "setOrderId", "setSkuName", "setCount", "setSpuId", "getSkuId", "getSpuName", "getSpuId", "setSpuName"]}, {"source": 5, "target": 22, "weight": 3.0, "idents": ["getCreateTime", "getOrderAddrId", "setOrderAddrId"]}, {"source": 5, "target": 19, "weight": 4.200096401054422, "idents": ["update", "saveBatch", "deleteById", "save"]}, {"source": 5, "target": 20, "weight": 4.091862452557366, "idents": ["update", "saveBatch", "deleteById", "save"]}, {"source": 5, "target": 21, "weight": 4.044443022132716, "idents": ["update", "saveBatch", "deleteById", "save"]}, {"source": 5, "target": 23, "weight": 2.090507732665258, "idents": ["setUserId", "getUserId"]}, {"source": 5, "target": 24, "weight": 2.044273782427414, "idents": ["setUserId", "getUserId"]}, {"source": 5, "target": 25, "weight": 4.021897148654117, "idents": ["setUserId", "getOrderAddrId", "setOrderAddrId", "getUserId"]}, {"source": 5, "target": 26, "weight": 4.002711275050203, "idents": ["setUserId", "getOrderAddrId", "setOrderAddrId", "getUserId"]}, {"source": 5, "target": 28, "weight": 3.189207115002721, "idents": ["update", "deleteById", "save"]}, {"source": 5, "target": 29, "weight": 3.090507732665258, "idents": ["update", "deleteById", "save"]}, {"source": 5, "target": 30, "weight": 3.044273782427414, "idents": ["update", "deleteById", "save"]}, {"source": 5, "target": 8, "weight": 3.0218971486541166, "idents": ["update", "deleteById", "save"]}, {"source": 5, "target": 31, "weight": 3.0054299011128025, "idents": ["update", "deleteById", "save"]}, {"source": 5, "target": 7, "weight": 3.0006771306930666, "idents": ["update", "deleteById", "save"]}, {"source": 5, "target": 27, "weight": 1.0, "idents": ["getUserAddr"]}, {"source": 5, "target": 32, "weight": 1.0, "idents": ["getDvyType"]}, {"source": 6, "target": 6, "weight": 17.0, "idents": ["OrderMapper", "getOrderByOrderIdAndShopId", "cancelOrders", "update", "getOrderByOrderIdAndUserId", "getOrdersSimpleAmountInfo", "saveBatch", "updateByToPaySuccess", "getOrderAndOrderItemData", "getOrdersActualAmount", "deleteOrder", "getEsOrder", "getOrdersStatus", "receiptOrder", "deleteById", "countNumberOfStatus", "getSubmitOrderPayAmountInfo"]}, {"source": 6, "target": 5, "weight": 13.0, "idents": ["update", "getOrderByOrderIdAndUserId", "getOrdersSimpleAmountInfo", "updateByToPaySuccess", "getOrderAndOrderItemData", "getOrdersActualAmount", "deleteOrder", "getEsOrder", "getOrdersStatus", "receiptOrder", "deleteById", "countNumberOfStatus", "getSubmitOrderPayAmountInfo"]}, {"source": 6, "target": 13, "weight": 13.0, "idents": ["update", "getOrderByOrderIdAndUserId", "getOrdersSimpleAmountInfo", "updateByToPaySuccess", "getOrderAndOrderItemData", "getOrdersActualAmount", "deleteOrder", "getEsOrder", "getOrdersStatus", "receiptOrder", "deleteById", "countNumberOfStatus", "getSubmitOrderPayAmountInfo"]}, {"source": 6, "target": 12, "weight": 3.0, "idents": ["getOrdersSimpleAmountInfo", "getEsOrder", "getOrdersStatus"]}, {"source": 6, "target": 19, "weight": 3.0, "idents": ["update", "saveBatch", "deleteById"]}, {"source": 6, "target": 20, "weight": 3.0, "idents": ["update", "saveBatch", "deleteById"]}, {"source": 6, "target": 21, "weight": 3.0, "idents": ["update", "saveBatch", "deleteById"]}, {"source": 6, "target": 28, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 6, "target": 29, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 6, "target": 30, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 6, "target": 8, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 6, "target": 31, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 6, "target": 7, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 6, "target": 22, "weight": 1.0, "idents": ["SubmitOrderPayAmountInfoBO"]}, {"source": 6, "target": 17, "weight": 1.0, "idents": ["OrderCountVO"]}, {"source": 6, "target": 1, "weight": 2.23606797749979, "idents": ["Order"]}, {"source": 7, "target": 7, "weight": 6.0, "idents": ["getByOrderAddrId", "list", "update", "save", "OrderAddrMapper", "deleteById"]}, {"source": 7, "target": 6, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 7, "target": 28, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 7, "target": 29, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 7, "target": 30, "weight": 4.0, "idents": ["getByOrderAddrId", "update", "deleteById", "save"]}, {"source": 7, "target": 8, "weight": 4.0, "idents": ["getByOrderAddrId", "update", "deleteById", "save"]}, {"source": 7, "target": 19, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 7, "target": 31, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 7, "target": 5, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 7, "target": 20, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 7, "target": 13, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 7, "target": 21, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 7, "target": 26, "weight": 2.0, "idents": ["OrderAddr"]}, {"source": 8, "target": 7, "weight": 5.0, "idents": ["getByOrderAddrId", "list", "update", "save", "deleteById"]}, {"source": 8, "target": 6, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 8, "target": 28, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 8, "target": 29, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 8, "target": 30, "weight": 5.0, "idents": ["getByOrderAddrId", "OrderAddrService", "update", "save", "deleteById"]}, {"source": 8, "target": 8, "weight": 4.0, "idents": ["getByOrderAddrId", "update", "deleteById", "save"]}, {"source": 8, "target": 19, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 8, "target": 31, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 8, "target": 5, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 8, "target": 20, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 8, "target": 13, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 8, "target": 21, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 9, "target": 9, "weight": 20.0, "idents": ["getPrice", "getSkuName", "setSpuId", "getSpuId", "setSpuName", "getOrderItemId", "toString", "getOrderId", "setOrderId", "getSkuId", "getSpuName", "getCount", "setOrderItemId", "setCount", "MyOrderItemVO", "getPic", "setSkuId", "setPrice", "setPic", "setSkuName"]}, {"source": 9, "target": 10, "weight": 19.0, "idents": ["getPrice", "getSkuName", "setSpuId", "getSpuId", "setSpuName", "getOrderItemId", "toString", "getOrderId", "setOrderId", "getSkuId", "getSpuName", "getCount", "setOrderItemId", "setCount", "getPic", "setSkuId", "setPrice", "setPic", "setSkuName"]}, {"source": 9, "target": 11, "weight": 19.0, "idents": ["getPrice", "getSkuName", "setSpuId", "getSpuId", "setSpuName", "getOrderItemId", "toString", "getOrderId", "setOrderId", "getSkuId", "getSpuName", "getCount", "setOrderItemId", "setCount", "getPic", "setSkuId", "setPrice", "setPic", "setSkuName"]}, {"source": 9, "target": 18, "weight": 3.0, "idents": ["toString", "getOrderItemId", "setOrderItemId"]}, {"source": 9, "target": 22, "weight": 1.0, "idents": ["toString"]}, {"source": 9, "target": 14, "weight": 3.0, "idents": ["toString", "getOrderId", "setOrderId"]}, {"source": 9, "target": 3, "weight": 1.0, "idents": ["toString"]}, {"source": 9, "target": 23, "weight": 1.0, "idents": ["toString"]}, {"source": 9, "target": 24, "weight": 1.0, "idents": ["toString"]}, {"source": 9, "target": 15, "weight": 3.0, "idents": ["toString", "getOrderId", "setOrderId"]}, {"source": 9, "target": 17, "weight": 1.0, "idents": ["toString"]}, {"source": 9, "target": 25, "weight": 1.0, "idents": ["toString"]}, {"source": 9, "target": 32, "weight": 1.0, "idents": ["toString"]}, {"source": 9, "target": 1, "weight": 3.0, "idents": ["toString", "getOrderId", "setOrderId"]}, {"source": 9, "target": 2, "weight": 3.0, "idents": ["toString", "getOrderId", "setOrderId"]}, {"source": 9, "target": 27, "weight": 1.0, "idents": ["toString"]}, {"source": 9, "target": 26, "weight": 1.0, "idents": ["toString"]}, {"source": 12, "target": 6, "weight": 4.414213562373095, "idents": ["getOrdersActualAmount", "getOrdersSimpleAmountInfo", "getEsOrder", "getOrdersStatus"]}, {"source": 12, "target": 5, "weight": 4.189207115002721, "idents": ["getOrdersActualAmount", "getOrdersSimpleAmountInfo", "getEsOrder", "getOrdersStatus"]}, {"source": 12, "target": 13, "weight": 4.090507732665258, "idents": ["getOrdersActualAmount", "getOrdersSimpleAmountInfo", "getEsOrder", "getOrdersStatus"]}, {"source": 12, "target": 12, "weight": 3.044273782427414, "idents": ["getOrdersSimpleAmountInfo", "getEsOrder", "getOrdersStatus"]}, {"source": 12, "target": 1, "weight": 1.4142135623730951, "idents": ["getStatus"]}, {"source": 12, "target": 15, "weight": 1.189207115002721, "idents": ["getStatus"]}, {"source": 12, "target": 2, "weight": 1.0905077326652577, "idents": ["getStatus"]}, {"source": 12, "target": 3, "weight": 1.0442737824274138, "idents": ["getStatus"]}, {"source": 13, "target": 6, "weight": 13.0, "idents": ["update", "getOrderByOrderIdAndUserId", "getOrdersSimpleAmountInfo", "updateByToPaySuccess", "getOrderAndOrderItemData", "getOrdersActualAmount", "deleteOrder", "getEsOrder", "getOrdersStatus", "receiptOrder", "deleteById", "countNumberOfStatus", "getSubmitOrderPayAmountInfo"]}, {"source": 13, "target": 5, "weight": 17.0, "idents": ["submit", "delivery", "update", "getOrderByOrderIdAndUserId", "getOrdersSimpleAmountInfo", "deleteById", "updateByToPaySuccess", "getOrderAndOrderItemData", "cancelOrderAndGetCancelOrderIds", "getOrdersActualAmount", "deleteOrder", "getEsOrder", "getOrdersStatus", "receiptOrder", "getOrderByOrderId", "countNumberOfStatus", "getSubmitOrderPayAmountInfo"]}, {"source": 13, "target": 13, "weight": 18.0, "idents": ["submit", "delivery", "update", "getOrderByOrderIdAndUserId", "getOrdersSimpleAmountInfo", "deleteById", "updateByToPaySuccess", "getOrderAndOrderItemData", "cancelOrderAndGetCancelOrderIds", "OrderService", "getOrdersActualAmount", "deleteOrder", "getEsOrder", "getOrdersStatus", "receiptOrder", "getOrderByOrderId", "countNumberOfStatus", "getSubmitOrderPayAmountInfo"]}, {"source": 13, "target": 12, "weight": 3.0, "idents": ["getOrdersSimpleAmountInfo", "getEsOrder", "getOrdersStatus"]}, {"source": 13, "target": 28, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 13, "target": 29, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 13, "target": 30, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 13, "target": 8, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 13, "target": 19, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 13, "target": 31, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 13, "target": 20, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 13, "target": 7, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 13, "target": 21, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 13, "target": 22, "weight": 1.0, "idents": ["SubmitOrderPayAmountInfoBO"]}, {"source": 13, "target": 16, "weight": 1.0, "idents": ["delivery"]}, {"source": 13, "target": 17, "weight": 1.0, "idents": ["OrderCountVO"]}, {"source": 13, "target": 1, "weight": 1.7320508075688772, "idents": ["Order"]}, {"source": 13, "target": 2, "weight": 1.0, "idents": ["OrderVO"]}, {"source": 14, "target": 10, "weight": 5.0, "idents": ["toString", "getOrderId", "setOrderId", "getShopId", "setShopId"]}, {"source": 14, "target": 3, "weight": 3.0, "idents": ["toString", "getShopId", "setShopId"]}, {"source": 14, "target": 14, "weight": 8.0, "idents": ["getDvyType", "OrderAdminDTO", "toString", "getOrderId", "setOrderId", "setDvyType", "getShopId", "setShopId"]}, {"source": 14, "target": 11, "weight": 5.0, "idents": ["toString", "getOrderId", "setOrderId", "getShopId", "setShopId"]}, {"source": 14, "target": 15, "weight": 5.0, "idents": ["toString", "getOrderId", "setOrderId", "getShopId", "setShopId"]}, {"source": 14, "target": 1, "weight": 5.0, "idents": ["toString", "getOrderId", "setOrderId", "getShopId", "setShopId"]}, {"source": 14, "target": 2, "weight": 5.0, "idents": ["toString", "getOrderId", "setOrderId", "getShopId", "setShopId"]}, {"source": 14, "target": 32, "weight": 3.0, "idents": ["toString", "getDvyType", "setDvyType"]}, {"source": 14, "target": 18, "weight": 1.0, "idents": ["toString"]}, {"source": 14, "target": 9, "weight": 3.0, "idents": ["toString", "getOrderId", "setOrderId"]}, {"source": 14, "target": 22, "weight": 1.0, "idents": ["toString"]}, {"source": 14, "target": 23, "weight": 1.0, "idents": ["toString"]}, {"source": 14, "target": 24, "weight": 1.0, "idents": ["toString"]}, {"source": 14, "target": 17, "weight": 1.0, "idents": ["toString"]}, {"source": 14, "target": 25, "weight": 1.0, "idents": ["toString"]}, {"source": 14, "target": 27, "weight": 1.0, "idents": ["toString"]}, {"source": 14, "target": 26, "weight": 1.0, "idents": ["toString"]}, {"source": 15, "target": 10, "weight": 7.0, "idents": ["getDeliveryType", "toString", "getOrderId", "setOrderId", "setDeliveryType", "getShopId", "setShopId"]}, {"source": 15, "target": 3, "weight": 13.0, "idents": ["setShopName", "setStatus", "getDeliveryType", "toString", "setCreateTime", "getCreateTime", "getOrderItems", "getStatus", "getShopName", "setOrderItems", "setDeliveryType", "getShopId", "setShopId"]}, {"source": 15, "target": 14, "weight": 5.0, "idents": ["toString", "getOrderId", "setOrderId", "getShopId", "setShopId"]}, {"source": 15, "target": 11, "weight": 7.0, "idents": ["getDeliveryType", "toString", "getOrderId", "setOrderId", "setDeliveryType", "getShopId", "setShopId"]}, {"source": 15, "target": 15, "weight": 20.0, "idents": ["setShopName", "setStatus", "getStatus", "getShopName", "getActualTotal", "setShopId", "setAllCount", "getDeliveryType", "toString", "getOrderId", "setOrderId", "MyOrderVO", "getOrderItems", "setOrderItems", "setDeliveryType", "getShopId", "setActualTotal", "getAllCount", "setCreateTime", "getCreateTime"]}, {"source": 15, "target": 1, "weight": 15.0, "idents": ["setAllCount", "setShopName", "setStatus", "getDeliveryType", "toString", "getOrderId", "getAllCount", "setOrderId", "getOrderItems", "getStatus", "getShopName", "setOrderItems", "setDeliveryType", "getShopId", "setShopId"]}, {"source": 15, "target": 2, "weight": 15.0, "idents": ["setAllCount", "setShopName", "setStatus", "getDeliveryType", "toString", "getOrderId", "getAllCount", "setOrderId", "getOrderItems", "getStatus", "getShopName", "setOrderItems", "setDeliveryType", "getShopId", "setShopId"]}, {"source": 15, "target": 17, "weight": 3.0, "idents": ["setAllCount", "getAllCount", "toString"]}, {"source": 15, "target": 22, "weight": 3.0, "idents": ["setCreateTime", "getCreateTime", "toString"]}, {"source": 15, "target": 18, "weight": 1.0, "idents": ["toString"]}, {"source": 15, "target": 9, "weight": 4.732050807568877, "idents": ["toString", "getOrderId", "MyOrderItemVO", "setOrderId"]}, {"source": 15, "target": 23, "weight": 1.0, "idents": ["toString"]}, {"source": 15, "target": 24, "weight": 1.0, "idents": ["toString"]}, {"source": 15, "target": 25, "weight": 1.0, "idents": ["toString"]}, {"source": 15, "target": 32, "weight": 1.0, "idents": ["toString"]}, {"source": 15, "target": 27, "weight": 1.0, "idents": ["toString"]}, {"source": 15, "target": 26, "weight": 1.0, "idents": ["toString"]}, {"source": 16, "target": 10, "weight": 2.0, "idents": ["getOrderId", "setShopId"]}, {"source": 16, "target": 3, "weight": 3.090507732665258, "idents": ["setOrderAddr", "getStatus", "setShopId"]}, {"source": 16, "target": 14, "weight": 2.0, "idents": ["getOrderId", "setShopId"]}, {"source": 16, "target": 11, "weight": 2.0, "idents": ["getOrderId", "setShopId"]}, {"source": 16, "target": 15, "weight": 3.0, "idents": ["getOrderId", "getStatus", "setShopId"]}, {"source": 16, "target": 1, "weight": 5.603420677375816, "idents": ["getOrderAddrId", "getOrderId", "setOrderAddr", "getStatus", "setShopId"]}, {"source": 16, "target": 2, "weight": 4.189207115002721, "idents": ["setOrderAddr", "getOrderId", "getStatus", "setShopId"]}, {"source": 16, "target": 5, "weight": 3.189207115002721, "idents": ["getOrderByOrderId", "getOrderAndOrderItemData", "delivery"]}, {"source": 16, "target": 13, "weight": 3.090507732665258, "idents": ["getOrderByOrderId", "getOrderAndOrderItemData", "delivery"]}, {"source": 16, "target": 16, "weight": 1.0, "idents": ["delivery"]}, {"source": 16, "target": 22, "weight": 1.4142135623730951, "idents": ["getOrderAddrId"]}, {"source": 16, "target": 25, "weight": 1.0905077326652577, "idents": ["getOrderAddrId"]}, {"source": 16, "target": 26, "weight": 1.0442737824274138, "idents": ["getOrderAddrId"]}, {"source": 16, "target": 6, "weight": 1.4142135623730951, "idents": ["getOrderAndOrderItemData"]}, {"source": 16, "target": 30, "weight": 1.7320508075688772, "idents": ["getByOrderAddrId"]}, {"source": 16, "target": 7, "weight": 1.3160740129524924, "idents": ["getByOrderAddrId"]}, {"source": 16, "target": 8, "weight": 1.147202690439877, "idents": ["getByOrderAddrId"]}, {"source": 16, "target": 9, "weight": 1.0, "idents": ["getOrderId"]}, {"source": 17, "target": 1, "weight": 3.0, "idents": ["setAllCount", "getAllCount", "toString"]}, {"source": 17, "target": 17, "weight": 12.0, "idents": ["setAllCount", "setPayed", "getUnPay", "setConsignment", "toString", "getAllCount", "getSuccess", "setUnPay", "setSuccess", "getPayed", "OrderCountVO", "getConsignment"]}, {"source": 17, "target": 15, "weight": 3.0, "idents": ["setAllCount", "getAllCount", "toString"]}, {"source": 17, "target": 2, "weight": 3.0, "idents": ["setAllCount", "getAllCount", "toString"]}, {"source": 17, "target": 18, "weight": 1.0, "idents": ["toString"]}, {"source": 17, "target": 9, "weight": 1.0, "idents": ["toString"]}, {"source": 17, "target": 10, "weight": 1.0, "idents": ["toString"]}, {"source": 17, "target": 22, "weight": 1.0, "idents": ["toString"]}, {"source": 17, "target": 14, "weight": 1.0, "idents": ["toString"]}, {"source": 17, "target": 3, "weight": 1.0, "idents": ["toString"]}, {"source": 17, "target": 11, "weight": 1.0, "idents": ["toString"]}, {"source": 17, "target": 23, "weight": 1.0, "idents": ["toString"]}, {"source": 17, "target": 24, "weight": 1.0, "idents": ["toString"]}, {"source": 17, "target": 25, "weight": 1.0, "idents": ["toString"]}, {"source": 17, "target": 32, "weight": 1.0, "idents": ["toString"]}, {"source": 17, "target": 27, "weight": 1.0, "idents": ["toString"]}, {"source": 17, "target": 26, "weight": 1.0, "idents": ["toString"]}, {"source": 19, "target": 19, "weight": 8.0, "idents": ["OrderItemService", "listOrderItemsByOrderId", "countByOrderId", "update", "save", "getSpuNameListByOrderIds", "saveBatch", "deleteById"]}, {"source": 19, "target": 20, "weight": 7.0, "idents": ["listOrderItemsByOrderId", "countByOrderId", "update", "save", "getSpuNameListByOrderIds", "saveBatch", "deleteById"]}, {"source": 19, "target": 21, "weight": 7.0, "idents": ["listOrderItemsByOrderId", "countByOrderId", "update", "save", "getSpuNameListByOrderIds", "saveBatch", "deleteById"]}, {"source": 19, "target": 6, "weight": 3.0, "idents": ["update", "saveBatch", "deleteById"]}, {"source": 19, "target": 28, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 19, "target": 29, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 19, "target": 30, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 19, "target": 8, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 19, "target": 31, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 19, "target": 5, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 19, "target": 7, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 19, "target": 13, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 19, "target": 11, "weight": 2.0, "idents": ["OrderItem"]}, {"source": 20, "target": 19, "weight": 8.0, "idents": ["OrderItemService", "listOrderItemsByOrderId", "countByOrderId", "update", "save", "getSpuNameListByOrderIds", "saveBatch", "deleteById"]}, {"source": 20, "target": 20, "weight": 7.0, "idents": ["listOrderItemsByOrderId", "countByOrderId", "update", "save", "getSpuNameListByOrderIds", "saveBatch", "deleteById"]}, {"source": 20, "target": 21, "weight": 7.0, "idents": ["listOrderItemsByOrderId", "countByOrderId", "update", "save", "getSpuNameListByOrderIds", "saveBatch", "deleteById"]}, {"source": 20, "target": 6, "weight": 3.0, "idents": ["update", "saveBatch", "deleteById"]}, {"source": 20, "target": 28, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 20, "target": 29, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 20, "target": 30, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 20, "target": 8, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 20, "target": 31, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 20, "target": 5, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 20, "target": 7, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 20, "target": 13, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 21, "target": 19, "weight": 7.0, "idents": ["listOrderItemsByOrderId", "countByOrderId", "update", "save", "getSpuNameListByOrderIds", "saveBatch", "deleteById"]}, {"source": 21, "target": 20, "weight": 7.0, "idents": ["listOrderItemsByOrderId", "countByOrderId", "update", "save", "getSpuNameListByOrderIds", "saveBatch", "deleteById"]}, {"source": 21, "target": 21, "weight": 8.0, "idents": ["listOrderItemsByOrderId", "countByOrderId", "update", "save", "getSpuNameListByOrderIds", "deleteById", "saveBatch", "OrderItemMapper"]}, {"source": 21, "target": 6, "weight": 3.0, "idents": ["update", "saveBatch", "deleteById"]}, {"source": 21, "target": 28, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 21, "target": 29, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 21, "target": 30, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 21, "target": 8, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 21, "target": 31, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 21, "target": 5, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 21, "target": 7, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 21, "target": 13, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 21, "target": 11, "weight": 2.0, "idents": ["OrderItem"]}, {"source": 22, "target": 22, "weight": 8.0, "idents": ["setTotalFee", "getOrderAddrId", "toString", "setOrderAddrId", "setCreateTime", "getCreateTime", "SubmitOrderPayAmountInfoBO", "getTotalFee"]}, {"source": 22, "target": 15, "weight": 3.0, "idents": ["setCreateTime", "getCreateTime", "toString"]}, {"source": 22, "target": 3, "weight": 3.0, "idents": ["setCreateTime", "getCreateTime", "toString"]}, {"source": 22, "target": 27, "weight": 3.0, "idents": ["toString", "setTotalFee", "getTotalFee"]}, {"source": 22, "target": 1, "weight": 3.0, "idents": ["toString", "getOrderAddrId", "setOrderAddrId"]}, {"source": 22, "target": 25, "weight": 3.0, "idents": ["toString", "getOrderAddrId", "setOrderAddrId"]}, {"source": 22, "target": 26, "weight": 3.0, "idents": ["toString", "getOrderAddrId", "setOrderAddrId"]}, {"source": 22, "target": 18, "weight": 1.0, "idents": ["toString"]}, {"source": 22, "target": 9, "weight": 1.0, "idents": ["toString"]}, {"source": 22, "target": 10, "weight": 1.0, "idents": ["toString"]}, {"source": 22, "target": 14, "weight": 1.0, "idents": ["toString"]}, {"source": 22, "target": 11, "weight": 1.0, "idents": ["toString"]}, {"source": 22, "target": 23, "weight": 1.0, "idents": ["toString"]}, {"source": 22, "target": 24, "weight": 1.0, "idents": ["toString"]}, {"source": 22, "target": 17, "weight": 1.0, "idents": ["toString"]}, {"source": 22, "target": 32, "weight": 1.0, "idents": ["toString"]}, {"source": 22, "target": 2, "weight": 1.0, "idents": ["toString"]}, {"source": 27, "target": 22, "weight": 3.0, "idents": ["toString", "setTotalFee", "getTotalFee"]}, {"source": 27, "target": 27, "weight": 14.0, "idents": ["setMobile", "setTotalFee", "getConsignee", "setConsignee", "toString", "getMobile", "getSpuNameList", "getUserAddr", "SubmitOrderPayInfoVO", "setUserAddr", "setEndTime", "setSpuNameList", "getTotalFee", "getEndTime"]}, {"source": 27, "target": 25, "weight": 5.0, "idents": ["setMobile", "setConsignee", "toString", "getMobile", "getConsignee"]}, {"source": 27, "target": 26, "weight": 5.0, "idents": ["setMobile", "setConsignee", "toString", "getMobile", "getConsignee"]}, {"source": 27, "target": 18, "weight": 1.0, "idents": ["toString"]}, {"source": 27, "target": 9, "weight": 1.0, "idents": ["toString"]}, {"source": 27, "target": 10, "weight": 1.0, "idents": ["toString"]}, {"source": 27, "target": 14, "weight": 1.0, "idents": ["toString"]}, {"source": 27, "target": 3, "weight": 1.0, "idents": ["toString"]}, {"source": 27, "target": 11, "weight": 1.0, "idents": ["toString"]}, {"source": 27, "target": 23, "weight": 1.0, "idents": ["toString"]}, {"source": 27, "target": 24, "weight": 1.0, "idents": ["toString"]}, {"source": 27, "target": 15, "weight": 1.0, "idents": ["toString"]}, {"source": 27, "target": 17, "weight": 1.0, "idents": ["toString"]}, {"source": 27, "target": 32, "weight": 1.0, "idents": ["toString"]}, {"source": 27, "target": 1, "weight": 1.0, "idents": ["toString"]}, {"source": 27, "target": 2, "weight": 1.0, "idents": ["toString"]}, {"source": 28, "target": 6, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 28, "target": 28, "weight": 4.0, "idents": ["update", "deleteById", "OrderPayInfoService", "save"]}, {"source": 28, "target": 29, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 28, "target": 30, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 28, "target": 8, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 28, "target": 19, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 28, "target": 31, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 28, "target": 5, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 28, "target": 20, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 28, "target": 7, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 28, "target": 13, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 28, "target": 21, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 28, "target": 24, "weight": 1.4142135623730951, "idents": ["OrderPayInfo"]}, {"source": 29, "target": 6, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 29, "target": 28, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 29, "target": 29, "weight": 4.0, "idents": ["update", "deleteById", "OrderPayInfoMapper", "save"]}, {"source": 29, "target": 30, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 29, "target": 8, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 29, "target": 19, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 29, "target": 31, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 29, "target": 5, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 29, "target": 20, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 29, "target": 7, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 29, "target": 13, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 29, "target": 21, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 29, "target": 24, "weight": 1.4142135623730951, "idents": ["OrderPayInfo"]}, {"source": 30, "target": 6, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 30, "target": 28, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 30, "target": 29, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 30, "target": 30, "weight": 6.0, "idents": ["getByOrderAddrId", "page", "OrderAddrService", "update", "save", "deleteById"]}, {"source": 30, "target": 8, "weight": 5.0, "idents": ["getByOrderAddrId", "page", "update", "save", "deleteById"]}, {"source": 30, "target": 19, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 30, "target": 31, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 30, "target": 5, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 30, "target": 20, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 30, "target": 7, "weight": 4.0, "idents": ["getByOrderAddrId", "update", "deleteById", "save"]}, {"source": 30, "target": 13, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 30, "target": 21, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 30, "target": 26, "weight": 2.0, "idents": ["OrderAddr"]}, {"source": 30, "target": 16, "weight": 1.0, "idents": ["page"]}, {"source": 31, "target": 6, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 31, "target": 28, "weight": 4.0, "idents": ["update", "deleteById", "OrderPayInfoService", "save"]}, {"source": 31, "target": 29, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 31, "target": 30, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 31, "target": 8, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 31, "target": 19, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 31, "target": 31, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 31, "target": 5, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 31, "target": 20, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 31, "target": 7, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 31, "target": 13, "weight": 2.0, "idents": ["update", "deleteById"]}, {"source": 31, "target": 21, "weight": 3.0, "idents": ["update", "deleteById", "save"]}, {"source": 32, "target": 32, "weight": 8.0, "idents": ["getDvyType", "setShopCartItem", "getShopCartItem", "toString", "setAddrId", "getAddrId", "OrderDTO", "setDvyType"]}, {"source": 32, "target": 14, "weight": 3.0, "idents": ["toString", "getDvyType", "setDvyType"]}, {"source": 32, "target": 18, "weight": 1.0, "idents": ["toString"]}, {"source": 32, "target": 9, "weight": 1.0, "idents": ["toString"]}, {"source": 32, "target": 10, "weight": 1.0, "idents": ["toString"]}, {"source": 32, "target": 22, "weight": 1.0, "idents": ["toString"]}, {"source": 32, "target": 3, "weight": 1.0, "idents": ["toString"]}, {"source": 32, "target": 11, "weight": 1.0, "idents": ["toString"]}, {"source": 32, "target": 23, "weight": 1.0, "idents": ["toString"]}, {"source": 32, "target": 24, "weight": 1.0, "idents": ["toString"]}, {"source": 32, "target": 15, "weight": 1.0, "idents": ["toString"]}, {"source": 32, "target": 17, "weight": 1.0, "idents": ["toString"]}, {"source": 32, "target": 25, "weight": 1.0, "idents": ["toString"]}, {"source": 32, "target": 1, "weight": 1.0, "idents": ["toString"]}, {"source": 32, "target": 2, "weight": 1.0, "idents": ["toString"]}, {"source": 32, "target": 27, "weight": 1.0, "idents": ["toString"]}, {"source": 32, "target": 26, "weight": 1.0, "idents": ["toString"]}, {"source": 33, "target": 6, "weight": 1.0, "idents": ["updateByToPaySuccess"]}, {"source": 33, "target": 5, "weight": 1.0, "idents": ["updateByToPaySuccess"]}, {"source": 33, "target": 13, "weight": 1.0, "idents": ["updateByToPaySuccess"]}, {"source": 33, "target": 16, "weight": 1.0, "idents": ["info"]}, {"source": 34, "target": 5, "weight": 1.0, "idents": ["cancelOrderAndGetCancelOrderIds"]}, {"source": 34, "target": 13, "weight": 1.0, "idents": ["cancelOrderAndGetCancelOrderIds"]}]};
+        
+        // 创建文件树数据结构
+        function createFileTree(files) {
+            const root = { name: '', children: {} };
+            files.forEach(file => {
+                const parts = file.full_name.split('/');
+                let current = root;
+                parts.forEach((part, i) => {
+                    if (!current.children[part]) {
+                        current.children[part] = { 
+                            name: part,
+                            path: parts.slice(0, i + 1).join('/'),
+                            children: {},
+                            isFile: i === parts.length - 1,
+                            description: i === parts.length - 1 ? file.description : ''
+                        };
+                    }
+                    current = current.children[part];
+                });
+            });
+            return root;
+        }
+
+        // 渲染文件树
+        function renderFileTree(node, container, level = 0) {
+            const items = Object.values(node.children).sort((a, b) => {
+                if (a.isFile === b.isFile) return a.name.localeCompare(b.name);
+                return a.isFile ? 1 : -1;
+            });
+
+            items.forEach(item => {
+                const nodeDiv = document.createElement('div');
+                nodeDiv.className = 'tree-node' + (item.isFile ? '' : ' folder');
+                
+                // 添加图标
+                const icon = document.createElement('i');
+                if (item.isFile) {
+                    icon.className = 'fas fa-file';
+                    // 根据文件扩展名设置不同的图标
+                    const ext = item.name.split('.').pop().toLowerCase();
+                    switch(ext) {
+                        case 'java':
+                            icon.className = 'fab fa-java';
+                            break;
+                        case 'py':
+                            icon.className = 'fab fa-python';
+                            break;
+                        case 'js':
+                            icon.className = 'fab fa-js';
+                            break;
+                        case 'html':
+                            icon.className = 'fab fa-html5';
+                            break;
+                        case 'css':
+                            icon.className = 'fab fa-css3-alt';
+                            break;
+                    }
+                } else {
+                    nodeDiv.innerHTML = `
+                        <i class="fas fa-folder"></i>
+                        <i class="fas fa-folder-open"></i>
+                    `;
+                }
+                if (item.isFile) {
+                    nodeDiv.appendChild(icon);
+                }
+                
+                // 添加文件名
+                const content = document.createElement('span');
+                content.className = 'node-content';
+                content.textContent = item.name;
+                nodeDiv.appendChild(content);
+                
+                container.appendChild(nodeDiv);
+                
+                if (!item.isFile) {
+                    const childrenDiv = document.createElement('div');
+                    childrenDiv.className = 'tree-children';
+                    container.appendChild(childrenDiv);
+                    
+                    // 添加文件夹点击展开/折叠事件
+                    nodeDiv.onclick = (e) => {
+                        e.stopPropagation();
+                        nodeDiv.classList.toggle('expanded');
+                        childrenDiv.classList.toggle('expanded');
+                    };
+                    
+                    renderFileTree(item, childrenDiv, level + 1);
+                } else {
+                    // 修改文件节点的点击事件
+                    nodeDiv.onclick = (e) => {
+                        e.stopPropagation();
+                        // 清除所有文件节点的高亮
+                        document.querySelectorAll('.tree-node').forEach(node => {
+                            node.classList.remove('highlighted');
+                        });
+                        // 添加当前节点的高亮
+                        nodeDiv.classList.add('highlighted');
+                        
+                        // 高亮对应的d3节点
+                        const fullPath = item.path;
+                        highlightD3Node(fullPath);
+                        
+                        // 显示文件内容
+                        showFileContent(fullPath);
+                    };
+                }
+            });
+        }
+
+        // 添加高亮d3节点的函数
+        function highlightD3Node(fullPath) {
+            // 清除所有节点的选中状态
+            node.selectAll("circle").classed("selected", false);
+            node.selectAll("text").classed("selected", false);
+            
+            // 找到并高亮对应的节点
+            node.each(function(d) {
+                if (d.full_name === fullPath) {
+                    const selectedNode = d3.select(this);
+                    selectedNode.select("circle").classed("selected", true);
+                    selectedNode.select("text").classed("selected", true);
+                    
+                    // 将节点移动到视图中心
+                    const transform = d3.zoomTransform(svg.node());
+                    const scale = transform.k;
+                    const x = -d.x * scale + width / 2;
+                    const y = -d.y * scale + height / 2;
+                    
+                    svg.transition()
+                        .duration(750)
+                        .call(
+                            zoom.transform,
+                            d3.zoomIdentity
+                                .translate(x, y)
+                                .scale(scale)
+                        );
+                }
+            });
+        }
+
+        // 显示文件内容
+        async function showFileContent(path) {
+            const fileTree = document.getElementById('file-tree');
+            const fileContent = document.getElementById('file-content');
+            const backButton = document.querySelector('.back-button');
+            
+            try {
+                const response = await fetch(path);
+                const content = await response.text();
+                
+                const pre = document.createElement('pre');
+                pre.textContent = content;
+                
+                fileContent.innerHTML = '';
+                fileContent.appendChild(pre);
+                
+                fileTree.style.display = 'none';
+                fileContent.style.display = 'block';
+                backButton.style.display = 'flex';
+                
+                // 高亮当前文件在文件树中的节点
+                document.querySelectorAll('.tree-node').forEach(node => {
+                    node.classList.remove('active');
+                    if (node.querySelector('.node-content').textContent === path.split('/').pop()) {
+                        node.classList.add('active');
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading file:', error);
+                fileContent.innerHTML = `
+                    <div style="padding: 16px; color: #f44336;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Error loading file: ${path}
+                    </div>
+                `;
+            }
+        }
+
+        // 返回文件树视图
+        document.querySelector('.back-button').onclick = () => {
+            document.getElementById('file-tree').style.display = 'block';
+            document.getElementById('file-content').style.display = 'none';
+            document.querySelector('.back-button').style.display = 'none';
+        };
+
+        // 初始化文件树
+        const fileTree = createFileTree(data.nodes);
+        renderFileTree(fileTree, document.getElementById('file-tree'));
+
+        /* 创建SVG */
+        const width = document.getElementById('graph').offsetWidth;
+        const height = window.innerHeight;
+        const svg = d3.select("#graph")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+            
+        /* 创建缩放和平移行为 */
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 4])
+            .on("zoom", (event) => {
+                container.attr("transform", event.transform);
+            });
+            
+        svg.call(zoom);
+        
+        const container = svg.append("g");
+        
+        /* 创建力导向图布局 */
+        const simulation = d3.forceSimulation(data.nodes)
+            .force("link", d3.forceLink(data.links)
+                .id(d => d.id)
+                .distance(d => {
+                    const nodeCount = data.nodes.length;
+                    const linkCount = data.links.length;
+                    const baseDist = 50;
+                    const nodeRatio = nodeCount / 100;  // 每100个节点增加一倍基础距离
+                    const linkRatio = linkCount / 500;  // 每500条边增加一倍基础距离
+                    return baseDist * (1 + nodeRatio) * (1 + linkRatio);
+                })
+                .strength(0.2))  /* 减小link force的strength */
+            .force("charge", d3.forceManyBody()
+                .strength(d => {
+                    const nodeCount = data.nodes.length;
+                    const baseCharge = -100;
+                    const chargeRatio = nodeCount / 100;  // 每100个节点增加一倍斥力
+                    return baseCharge * (1 + chargeRatio);
+                }))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("x", d3.forceX(width / 2).strength(0.05))
+            .force("y", d3.forceY(height / 2).strength(0.05))
+            .force("collide", d3.forceCollide()
+                .radius(d => d.radius * 2.5)  /* 增加碰撞半径 */
+                .strength(1)
+                .iterations(3))
+            .alphaDecay(0.01)  /* 减缓alpha衰减速度 */
+            .velocityDecay(0.5);  /* 减缓速度衰减 */
+            
+        /* 绘制连接线 */
+        const link = container.append("g")
+            .selectAll("line")
+            .data(data.links)
+            .join("line")
+            .attr("class", "link")
+            .attr("stroke-width", d => Math.sqrt(d.weight));
+            
+        /* 创建节点组 */
+        const node = container.append("g")
+            .selectAll(".node")
+            .data(data.nodes)
+            .join("g")
+            .attr("class", "node")
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+
+        /* 添加节点圆圈 */
+        node.append("circle")
+            .attr("r", d => d.radius)
+            .attr("fill", d => d.color)
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 1.5);
+
+        /* 添加节点标签 */
+        node.append("text")
+            .text(d => d.name)
+            .attr("x", 0)
+            .attr("y", d => -d.radius - 5);
+
+        /* 添加提示框 */
+        const tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+        // 在文件树中定位到指定文件
+        function locateFile(fullPath) {
+            const parts = fullPath.split('/');
+            let currentNode = null;
+            let currentPath = '';
+            
+            // 清除所有高亮
+            document.querySelectorAll('.tree-node').forEach(node => {
+                node.classList.remove('highlighted');
+            });
+            
+            // 展开所有父文件夹
+            for (let i = 0; i < parts.length; i++) {
+                currentPath += (i === 0 ? '' : '/') + parts[i];
+                const treeNodes = document.querySelectorAll('.tree-node');
+                
+                for (const node of treeNodes) {
+                    const content = node.querySelector('.node-content');
+                    if (content && content.textContent === parts[i]) {
+                        currentNode = node;
+                        // 如果是文件夹且未展开，则展开它
+                        if (i < parts.length - 1 && !node.classList.contains('expanded')) {
+                            node.click();
+                        }
+                        // 如果是目标文件，添加高亮效果
+                        if (i === parts.length - 1) {
+                            node.classList.add('highlighted');
+                        }
+                        break;
+                    }
+                }
+            }
+            
+            // 如果找到了目标文件节点
+            if (currentNode) {
+                // 滚动到该节点
+                currentNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // 触发点击事件以显示文件内容
+                if (currentNode.classList.contains('highlighted')) {
+                    showFileContent(fullPath);
+                }
+            }
+        }
+
+        /* 节点交互 */
+        node.on("click", (event, d) => {
+                event.stopPropagation(); // 阻止事件冒泡
+                
+                // 清除之前的选中状态
+                node.selectAll("circle").classed("selected", false);
+                node.selectAll("text").classed("selected", false);
+                
+                // 添加新的选中状态
+                const clickedNode = d3.select(event.currentTarget);
+                clickedNode.select("circle").classed("selected", true);
+                clickedNode.select("text").classed("selected", true);
+                
+                locateFile(d.full_name);
+            })
+            .on("mouseover", (event, d) => {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                    
+                let tooltipContent = `<h4>${d.name}</h4>`;
+                tooltipContent += `<div class="path"><strong>Full path:</strong><br>${d.full_name}</div>`;
+                tooltipContent += `<strong>Degree:</strong> ${d.degree}<br>`;
+                
+                if (d.community_id !== null) {
+                    tooltipContent += `<div class="description"><strong>Community:</strong><br>${d.community_description}</div>`;
+                }
+                
+                if (d.description) {
+                    tooltipContent += `<div class="description"><strong>File:</strong><br>${d.description}</div>`;
+                }
+                
+                tooltip.html(tooltipContent)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", () => {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+
+        /* 模拟tick事件 */
+        simulation.on("tick", () => {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            node.attr("transform", d => `translate(${d.x},${d.y})`);
+        });
+
+        /* 拖拽函数 */
+        function dragstarted(event) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+        }
+
+        function dragged(event) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+        }
+
+        function dragended(event) {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+        }
+
+        // 处理窗口大小变化
+        window.addEventListener('resize', () => {
+            const newWidth = document.getElementById('graph').offsetWidth;
+            svg.attr("width", newWidth);
+            simulation.force("center", d3.forceCenter(newWidth / 2, height / 2))
+                .alpha(0.3)
+                .restart();
+        });
+
+        // 添加拖动调整宽度的功能
+        const resizer = document.getElementById('resizer');
+        const sidebar = document.getElementById('sidebar');
+        const graph = document.getElementById('graph');
+        let isResizing = false;
+        let startX;
+        let startWidth;
+
+        // 禁用文本选择的函数
+        function disableSelect() {
+            document.body.classList.add('no-select');
+            sidebar.style.pointerEvents = 'none';
+            graph.style.pointerEvents = 'none';
+        }
+
+        // 启用文本选择的函数
+        function enableSelect() {
+            document.body.classList.remove('no-select');
+            sidebar.style.pointerEvents = 'auto';
+            graph.style.pointerEvents = 'auto';
+        }
+
+        resizer.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            startX = e.pageX;
+            startWidth = parseInt(window.getComputedStyle(sidebar).width, 10);
+            resizer.classList.add('active');
+            disableSelect();
+            e.preventDefault(); // 防止拖动开始时的文本选择
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            
+            const width = startWidth + (e.pageX - startX);
+            // 限制最小宽度为200px，最大宽度为800px
+            if (width >= 200 && width <= 800) {
+                sidebar.style.width = `${width}px`;
+                // 触发图表区域的resize事件
+                window.dispatchEvent(new Event('resize'));
+            }
+            e.preventDefault(); // 防止拖动过程中的文本选择
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (!isResizing) return;
+            
+            isResizing = false;
+            resizer.classList.remove('active');
+            enableSelect();
+        });
+
+        // 确保在鼠标离开窗口时也能正确处理
+        document.addEventListener('mouseleave', () => {
+            if (isResizing) {
+                isResizing = false;
+                resizer.classList.remove('active');
+                enableSelect();
+            }
+        });
+    </script>
+</body>
+</html>

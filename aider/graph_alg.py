@@ -356,6 +356,14 @@ def save_d3_visualization(repo_root, G, communities=None, output_file_name=None)
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* 添加禁用文本选择的样式类 */
+        .no-select {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
         body { margin: 0; display: flex; }
         #sidebar { 
             width: 300px; 
@@ -367,6 +375,18 @@ def save_d3_visualization(repo_root, G, communities=None, output_file_name=None)
             overflow: hidden;
             color: #333;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            flex-shrink: 0;
+        }
+        #resizer {
+            width: 8px;
+            height: 100vh;
+            background: #f0f0f0;
+            cursor: col-resize;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        #resizer:hover, #resizer.active {
+            background: #1a73e8;
         }
         #file-tree {
             flex: 1;
@@ -398,6 +418,7 @@ def save_d3_visualization(repo_root, G, communities=None, output_file_name=None)
             flex: 1;
             height: 100vh;
             background: white;
+            overflow: hidden;
         }
         .tree-node {
             cursor: pointer;
@@ -578,6 +599,7 @@ def save_d3_visualization(repo_root, G, communities=None, output_file_name=None)
         <div id="file-tree"></div>
         <div id="file-content"></div>
     </div>
+    <div id="resizer"></div>
     <div id="graph"></div>
     <script>
         const data = ''' + json.dumps({"nodes": nodes, "links": links}) + ''';
@@ -979,6 +1001,67 @@ def save_d3_visualization(repo_root, G, communities=None, output_file_name=None)
             simulation.force("center", d3.forceCenter(newWidth / 2, height / 2))
                 .alpha(0.3)
                 .restart();
+        });
+
+        // 添加拖动调整宽度的功能
+        const resizer = document.getElementById('resizer');
+        const sidebar = document.getElementById('sidebar');
+        const graph = document.getElementById('graph');
+        let isResizing = false;
+        let startX;
+        let startWidth;
+
+        // 禁用文本选择的函数
+        function disableSelect() {
+            document.body.classList.add('no-select');
+            sidebar.style.pointerEvents = 'none';
+            graph.style.pointerEvents = 'none';
+        }
+
+        // 启用文本选择的函数
+        function enableSelect() {
+            document.body.classList.remove('no-select');
+            sidebar.style.pointerEvents = 'auto';
+            graph.style.pointerEvents = 'auto';
+        }
+
+        resizer.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            startX = e.pageX;
+            startWidth = parseInt(window.getComputedStyle(sidebar).width, 10);
+            resizer.classList.add('active');
+            disableSelect();
+            e.preventDefault(); // 防止拖动开始时的文本选择
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            
+            const width = startWidth + (e.pageX - startX);
+            // 限制最小宽度为200px，最大宽度为800px
+            if (width >= 200 && width <= 800) {
+                sidebar.style.width = `${width}px`;
+                // 触发图表区域的resize事件
+                window.dispatchEvent(new Event('resize'));
+            }
+            e.preventDefault(); // 防止拖动过程中的文本选择
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (!isResizing) return;
+            
+            isResizing = false;
+            resizer.classList.remove('active');
+            enableSelect();
+        });
+
+        // 确保在鼠标离开窗口时也能正确处理
+        document.addEventListener('mouseleave', () => {
+            if (isResizing) {
+                isResizing = false;
+                resizer.classList.remove('active');
+                enableSelect();
+            }
         });
     </script>
 </body>
